@@ -1,0 +1,30 @@
+# TikTok Hubs - Legitimate Business Management Platform
+# This is an official business tool for TikTok Shop sellers
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /settings/
+
+# Security
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /*?*
+
+# Specific Bots
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: bingbot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 10
+
+# Sitemap location
+Sitemap: https://tiktokhubs.humahub.my.id/sitemap.xml

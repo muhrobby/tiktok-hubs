@@ -18,11 +18,25 @@ export default defineNuxtConfig({
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || "",
       apiUrl: process.env.NUXT_PUBLIC_API_URL || "",
+      appUrl: process.env.NUXT_PUBLIC_APP_URL || "http://localhost:3002",
+      appName: process.env.NUXT_PUBLIC_APP_NAME || "TikTok Hubs",
     },
   },
   routeRules: {
     "/api/**": {
       cors: true,
+    },
+    // Add security headers to all routes
+    "/**": {
+      headers: {
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-Content-Type-Options": "nosniff",
+        "X-XSS-Protection": "1; mode=block",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+        // Strict Transport Security (enable in production with HTTPS)
+        // "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+      },
     },
   },
   

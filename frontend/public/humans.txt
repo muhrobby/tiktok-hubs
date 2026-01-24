@@ -1,0 +1,36 @@
+/* TEAM */
+Developer: Muhammad Robby
+Contact: muhrobby [at] example.com
+Twitter: @muhrobby
+GitHub: @muhrobby
+Location: Indonesia
+
+/* SITE */
+Standards: HTML5, CSS3, JavaScript ES2022
+Components: Nuxt 3, Vue 3, TypeScript
+Software: Visual Studio Code, Node.js
+Backend: Hono, PostgreSQL, Drizzle ORM
+
+/* PURPOSE */
+This is a legitimate business management platform for TikTok Shop sellers.
+TikTok Hubs helps store owners manage multiple shops, track analytics,
+and synchronize data from TikTok's official API.
+
+/* LEGITIMACY */
+This is NOT a phishing site.
+This is NOT affiliated with TikTok/ByteDance (except as API consumer).
+This is a third-party business tool for TikTok Shop sellers.
+
+Official Repository: https://github.com/muhrobby/tiktok-hubs
+Documentation: See README.md in repository
+
+/* THANKS */
+Thanks to TikTok for their API
+Thanks to the open-source community
+Thanks to all contributors
+
+/* LAST UPDATE */
+Last update: 2026/01/25
+Language: English / Indonesian
+Doctype: HTML5
+IDE: Visual Studio Code
