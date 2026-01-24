@@ -1,0 +1,57 @@
+{
+  "name": "tiktok-hubs",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx src/db/seed.ts"
+  },
+  "keywords": [
+    "tiktok",
+    "reporting",
+    "hono",
+    "drizzle"
+  ],
+  "author": "",
+  "license": "ISC",
+  "description": "TikTok Content Reporting Hub - Consolidate TikTok content performance reports",
+  "dependencies": {
+    "@hono/node-server": "^1.19.8",
+    "@hono/swagger-ui": "^0.5.3",
+    "@hono/zod-openapi": "^1.2.0",
+    "@hono/zod-validator": "^0.7.6",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.36.4",
+    "exceljs": "^4.4.0",
+    "hono": "^4.11.3",
+    "jsonwebtoken": "^9.0.3",
+    "node-cron": "^3.0.3",
+    "pg": "^8.13.1",
+    "pino": "^9.5.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/exceljs": "^0.5.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.10.2",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.11.10",
+    "drizzle-kit": "^0.30.1",
+    "pino-pretty": "^13.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

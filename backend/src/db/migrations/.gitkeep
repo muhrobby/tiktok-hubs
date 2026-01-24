@@ -1,0 +1,6 @@
+# Database Migrations
+
+Migration files will be generated here by drizzle-kit.
+
+Run `npm run db:generate` to generate migrations from schema changes.
+Run `npm run db:push` to push schema directly to database (development).

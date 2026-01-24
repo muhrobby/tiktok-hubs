@@ -1,0 +1,160 @@
+version: '3.8'
+
+# ==============================================
+# TIKTOK HUBS - PRODUCTION DOCKER COMPOSE
+# ==============================================
+# Deployment untuk VPS dengan Traefik sebagai reverse proxy
+# Domain: tiktokhubs.humahub.my.id & api-tiktokhubs.humahub.my.id
+
+services:
+  # ==============================================
+  # BACKEND SERVICE
+  # ==============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tiktokhubs-backend
+    restart: unless-stopped
+    
+    env_file:
+      - ./backend/.env.production
+    
+    environment:
+      - NODE_ENV=production
+      - TZ=Asia/Jakarta
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    networks:
+      - prod_net
+      - internal
+    
+    # Traefik labels untuk routing
+    labels:
+      - "traefik.enable=true"
+      
+      # Router untuk HTTPS
+      - "traefik.http.routers.tiktokhubs-backend.rule=Host(`api-tiktokhubs.humahub.my.id`)"
+      - "traefik.http.routers.tiktokhubs-backend.entrypoints=websecure"
+      - "traefik.http.routers.tiktokhubs-backend.tls=true"
+      - "traefik.http.routers.tiktokhubs-backend.tls.certresolver=letsencrypt"
+      
+      # Service
+      - "traefik.http.services.tiktokhubs-backend.loadbalancer.server.port=3000"
+      
+      # Middleware: Security headers
+      - "traefik.http.middlewares.backend-security.headers.customResponseHeaders.X-Frame-Options=SAMEORIGIN"
+      - "traefik.http.middlewares.backend-security.headers.customResponseHeaders.X-Content-Type-Options=nosniff"
+      - "traefik.http.middlewares.backend-security.headers.customResponseHeaders.X-XSS-Protection=1; mode=block"
+      - "traefik.http.middlewares.backend-security.headers.sslRedirect=true"
+      - "traefik.http.middlewares.backend-security.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.backend-security.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.backend-security.headers.stsPreload=true"
+      
+      # Apply middleware
+      - "traefik.http.routers.tiktokhubs-backend.middlewares=backend-security"
+      
+      # Docker network untuk Traefik
+      - "traefik.docker.network=prod_net"
+
+  # ==============================================
+  # FRONTEND SERVICE
+  # ==============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tiktokhubs-frontend
+    restart: unless-stopped
+    
+    env_file:
+      - ./frontend/.env.production
+    
+    environment:
+      - NODE_ENV=production
+      - TZ=Asia/Jakarta
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/api/_health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+          cpus: '1.0'
+        reservations:
+          memory: 768M
+          cpus: '0.5'
+    
+    depends_on:
+      backend:
+        condition: service_healthy
+    
+    networks:
+      - prod_net
+      - internal
+    
+    # Traefik labels untuk routing
+    labels:
+      - "traefik.enable=true"
+      
+      # Router untuk HTTPS
+      - "traefik.http.routers.tiktokhubs-frontend.rule=Host(`tiktokhubs.humahub.my.id`)"
+      - "traefik.http.routers.tiktokhubs-frontend.entrypoints=websecure"
+      - "traefik.http.routers.tiktokhubs-frontend.tls=true"
+      - "traefik.http.routers.tiktokhubs-frontend.tls.certresolver=letsencrypt"
+      
+      # Service
+      - "traefik.http.services.tiktokhubs-frontend.loadbalancer.server.port=3001"
+      
+      # Middleware: Security headers + CSP
+      - "traefik.http.middlewares.frontend-security.headers.customResponseHeaders.X-Frame-Options=SAMEORIGIN"
+      - "traefik.http.middlewares.frontend-security.headers.customResponseHeaders.X-Content-Type-Options=nosniff"
+      - "traefik.http.middlewares.frontend-security.headers.customResponseHeaders.X-XSS-Protection=1; mode=block"
+      - "traefik.http.middlewares.frontend-security.headers.sslRedirect=true"
+      - "traefik.http.middlewares.frontend-security.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.frontend-security.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.frontend-security.headers.stsPreload=true"
+      - "traefik.http.middlewares.frontend-security.headers.contentSecurityPolicy=default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://api-tiktokhubs.humahub.my.id; img-src 'self' data: https:; font-src 'self' data:; style-src 'self' 'unsafe-inline';"
+      
+      # Apply middleware
+      - "traefik.http.routers.tiktokhubs-frontend.middlewares=frontend-security"
+      
+      # Docker network untuk Traefik
+      - "traefik.docker.network=prod_net"
+
+# ==============================================
+# NETWORKS
+# ==============================================
+networks:
+  # Network eksternal untuk Traefik (shared dengan services lain)
+  prod_net:
+    external: true
+  
+  # Network internal untuk komunikasi antar container
+  internal:
+    driver: bridge
+    internal: false

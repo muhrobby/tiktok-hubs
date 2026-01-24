@@ -1,0 +1,226 @@
+# ==============================================
+# TIKTOK HUBS - GITIGNORE
+# ==============================================
+
+# ==============================================
+# DEPENDENCIES
+# ==============================================
+node_modules/
+.pnp
+.pnp.js
+.yarn/
+!.yarn/releases
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==============================================
+# BUILD OUTPUT
+# ==============================================
+dist/
+build/
+.output/
+.nuxt/
+.next/
+out/
+.cache/
+.turbo/
+*.tsbuildinfo
+
+# ==============================================
+# ENVIRONMENT FILES (SENSITIVE!)
+# ==============================================
+.env
+.env.*
+!.env.example
+!.env.production.template
+.env.keys
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+
+# ==============================================
+# DATABASE
+# ==============================================
+*.sql
+*.sqlite
+*.db
+backups/
+*.dump
+postgres-data/
+
+# ==============================================
+# LOGS
+# ==============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==============================================
+# IDE & EDITORS
+# ==============================================
+# VSCode
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/*.code-snippets
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/shelf
+
+# JetBrains
+.fleet/
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# ==============================================
+# OS FILES
+# ==============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+.nfs*
+
+# ==============================================
+# DOCKER
+# ==============================================
+# Ignore docker-compose override (untuk dev local)
+docker-compose.override.yml
+.dockerignore
+
+# ==============================================
+# TESTING
+# ==============================================
+coverage/
+*.cover
+*.coverage
+.nyc_output/
+.jest/
+.vitest/
+test-results/
+playwright-report/
+
+# ==============================================
+# TEMPORARY FILES
+# ==============================================
+tmp/
+temp/
+*.tmp
+*.temp
+.temp/
+
+# ==============================================
+# SECURITY & CREDENTIALS
+# ==============================================
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.json
+service-account.json
+secrets/
+.secrets/
+
+# ==============================================
+# BACKUP FILES
+# ==============================================
+*.backup
+*.bak
+*.old
+*.orig
+
+# ==============================================
+# ARCHIVES
+# ==============================================
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# ==============================================
+# MISC
+# ==============================================
+.history/
+.eslintcache
+.vercel
+.netlify
+.firebase/
+
+# ==============================================
+# PROJECT SPECIFIC
+# ==============================================
+# Generated keys (SENSITIVE!)
+.env.keys
+
+# Backup database files
+backup_*.sql
+backup_*.sql.gz
+db_*.sql.gz
+
+# Environment backups
+env_*.tar.gz
+
+# Deployment logs
+deployment.log
+deploy-*.log
+
+# Health check logs
+health-*.log
+
+# Monitoring logs
+monitoring-*.log
