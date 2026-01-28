@@ -144,9 +144,9 @@ const columns: TableColumn<User>[] = [
     filterFn: 'equals',
     cell: ({ row }) => {
       const color = {
-        subscribed: 'success' as const,
-        unsubscribed: 'error' as const,
-        bounced: 'warning' as const
+        subscribed: 'gray' as const,
+        unsubscribed: 'gray' as const,
+        bounced: 'neutral' as const
       }[row.original.status]
 
       return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () =>
@@ -239,7 +239,7 @@ const pagination = ref({
             <UButton
               v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
               label="Delete"
-              color="error"
+              color="gray"
               variant="subtle"
               icon="i-lucide-trash"
             >

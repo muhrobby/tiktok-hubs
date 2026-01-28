@@ -37,7 +37,7 @@ definePageMeta({
       <div class="mb-8">
         <UIcon
           name="i-lucide-shield-x"
-          class="text-6xl text-error mx-auto mb-4"
+          class="text-6xl text-gray-800 dark:text-gray-200 mx-auto mb-4"
         />
         <h1 class="text-2xl font-bold mb-2">Access Denied</h1>
         <p class="text-muted">{{ message }}</p>
@@ -51,7 +51,7 @@ definePageMeta({
       </UCard>
 
       <div class="flex flex-col sm:flex-row gap-3 justify-center">
-        <UButton to="/" color="primary" variant="solid">
+        <UButton to="/" color="gray" variant="solid">
           <UIcon name="i-lucide-home" class="mr-2" />
           Go to Dashboard
         </UButton>

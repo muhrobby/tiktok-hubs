@@ -57,11 +57,11 @@ async function onPasswordSubmit(event: FormSubmitEvent<PasswordSchema>) {
 const getRoleColor = (role: string) => {
   switch (role) {
     case 'Admin':
-      return 'error'
+      return 'gray'
     case 'Ops':
-      return 'warning'
+      return 'neutral'
     case 'Store':
-      return 'info'
+      return 'neutral'
     default:
       return 'neutral'
   }
@@ -115,7 +115,7 @@ const formatDate = (dateString: string | null) => {
               </div>
               <div>
                 <p class="text-sm text-dimmed">Status</p>
-                <UBadge :color="user?.isActive ? 'success' : 'error'" variant="subtle">
+                <UBadge :color="user?.isActive ? 'gray' : 'gray'" variant="subtle">
                   {{ user?.isActive ? 'Active' : 'Inactive' }}
                 </UBadge>
               </div>
@@ -160,7 +160,7 @@ const formatDate = (dateString: string | null) => {
                 <UBadge
                   v-for="store in user.assignedStores"
                   :key="store"
-                  color="primary"
+                  color="gray"
                   variant="outline"
                 >
                   {{ store }}

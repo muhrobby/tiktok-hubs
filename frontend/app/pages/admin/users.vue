@@ -132,11 +132,11 @@ const loadUsers = async () => {
     }
   } catch (error) {
     console.error("Error loading users:", error);
-    toast.add({
-      title: "Error",
-      description: "Failed to load users",
-      color: "error",
-    });
+        toast.add({
+          title: "Error",
+          description: "Failed to load users",
+          color: "gray",
+        });
   } finally {
     loading.value = false;
   }
@@ -205,7 +205,7 @@ const handleCreateUser = async () => {
       toast.add({
         title: "Success",
         description: "User created successfully",
-        color: "success",
+        color: "gray",
       });
       isCreateModalOpen.value = false;
       resetCreateForm();
@@ -214,7 +214,7 @@ const handleCreateUser = async () => {
       toast.add({
         title: "Error",
         description: response.error?.message || "Failed to create user",
-        color: "error",
+        color: "gray",
       });
     }
   } catch (error: unknown) {
@@ -222,7 +222,7 @@ const handleCreateUser = async () => {
     toast.add({
       title: "Error",
       description: err?.data?.error?.message || "Failed to create user",
-      color: "error",
+      color: "gray",
     });
   } finally {
     isSubmitting.value = false;
@@ -257,7 +257,7 @@ const handleUpdateUser = async () => {
       toast.add({
         title: "Success",
         description: "User updated successfully",
-        color: "success",
+        color: "gray",
       });
       isEditModalOpen.value = false;
       await loadUsers();
@@ -265,7 +265,7 @@ const handleUpdateUser = async () => {
       toast.add({
         title: "Error",
         description: response.error?.message || "Failed to update user",
-        color: "error",
+        color: "gray",
       });
     }
   } catch (error: unknown) {
@@ -273,7 +273,7 @@ const handleUpdateUser = async () => {
     toast.add({
       title: "Error",
       description: err?.data?.error?.message || "Failed to update user",
-      color: "error",
+      color: "gray",
     });
   } finally {
     isSubmitting.value = false;
@@ -297,7 +297,7 @@ const handleDeleteUser = async () => {
       toast.add({
         title: "Success",
         description: "User deleted successfully",
-        color: "success",
+        color: "gray",
       });
       isDeleteModalOpen.value = false;
       selectedUser.value = null;
@@ -306,7 +306,7 @@ const handleDeleteUser = async () => {
       toast.add({
         title: "Error",
         description: response.error?.message || "Failed to delete user",
-        color: "error",
+        color: "gray",
       });
     }
   } catch (error: unknown) {
@@ -314,7 +314,7 @@ const handleDeleteUser = async () => {
     toast.add({
       title: "Error",
       description: err?.data?.error?.message || "Failed to delete user",
-      color: "error",
+      color: "gray",
     });
   } finally {
     isSubmitting.value = false;
@@ -343,7 +343,7 @@ const handleAssignRole = async () => {
       toast.add({
         title: "Success",
         description: "Role assigned successfully",
-        color: "success",
+        color: "gray",
       });
       isAssignRoleModalOpen.value = false;
       await loadUsers();
@@ -351,7 +351,7 @@ const handleAssignRole = async () => {
       toast.add({
         title: "Error",
         description: response.error?.message || "Failed to assign role",
-        color: "error",
+        color: "gray",
       });
     }
   } catch (error: unknown) {
@@ -359,7 +359,7 @@ const handleAssignRole = async () => {
     toast.add({
       title: "Error",
       description: err?.data?.error?.message || "Failed to assign role",
-      color: "error",
+      color: "gray",
     });
   } finally {
     isSubmitting.value = false;
@@ -381,7 +381,7 @@ const handleRemoveRole = async (user: User, role: UserRole) => {
       toast.add({
         title: "Success",
         description: "Role removed successfully",
-        color: "success",
+        color: "gray",
       });
       await loadUsers();
       
@@ -397,7 +397,7 @@ const handleRemoveRole = async (user: User, role: UserRole) => {
       toast.add({
         title: "Error",
         description: response.error?.message || "Failed to remove role",
-        color: "error",
+        color: "gray",
       });
     }
   } catch (error: unknown) {
@@ -405,7 +405,7 @@ const handleRemoveRole = async (user: User, role: UserRole) => {
     toast.add({
       title: "Error",
       description: err?.data?.error?.message || "Failed to remove role",
-      color: "error",
+      color: "gray",
     });
   }
 };
@@ -481,10 +481,10 @@ const columns: TableColumn<User>[] = [
             {
               color:
                 role.name === "Admin"
-                  ? "error"
+                  ? "gray"
                   : role.name === "Ops"
-                    ? "warning"
-                    : "info",
+                    ? "neutral"
+                    : "neutral",
               variant: "subtle",
             },
             { default: () => (role.storeCode ? `${role.name}: ${role.storeCode}` : role.name) }
@@ -499,7 +499,7 @@ const columns: TableColumn<User>[] = [
       h(
         UBadge,
         {
-          color: row.original.isActive ? "success" : "neutral",
+          color: row.original.isActive ? "gray" : "neutral",
           variant: "subtle",
         },
         { default: () => (row.original.isActive ? "Active" : "Inactive") }
@@ -625,7 +625,7 @@ onMounted(async () => {
           <div class="flex items-center justify-center py-12">
             <UIcon
               name="i-lucide-loader-2"
-              class="w-8 h-8 animate-spin text-primary"
+              class="w-8 h-8 animate-spin text-gray-900 dark:text-white"
             />
           </div>
         </template>
@@ -671,7 +671,7 @@ onMounted(async () => {
               :color="formErrors.username ? 'error' : undefined"
               class="w-full"
             />
-            <p v-if="formErrors.username" class="text-xs text-error mt-1">
+            <p v-if="formErrors.username" class="text-xs text-gray-800 dark:text-gray-200 mt-1">
               {{ formErrors.username }}
             </p>
           </UFormField>
@@ -684,7 +684,7 @@ onMounted(async () => {
               :color="formErrors.password ? 'error' : undefined"
               class="w-full"
             />
-            <p v-if="formErrors.password" class="text-xs text-error mt-1">
+            <p v-if="formErrors.password" class="text-xs text-gray-800 dark:text-gray-200 mt-1">
               {{ formErrors.password }}
             </p>
           </UFormField>
@@ -830,10 +830,10 @@ onMounted(async () => {
                 :key="`${role.name}-${role.storeCode}`"
                 :color="
                   role.name === 'Admin'
-                    ? 'error'
+                    ? 'gray'
                     : role.name === 'Ops'
-                      ? 'warning'
-                      : 'info'
+                      ? 'neutral'
+                      : 'neutral'
                 "
                 variant="subtle"
                 class="cursor-pointer"

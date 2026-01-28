@@ -128,7 +128,7 @@ const columns: TableColumn<AuditLog>[] = [
       return h(
         UBadge,
         {
-          color: color as "primary" | "success" | "error" | "warning" | "info" | "neutral",
+          color: color as "gray" | "gray" | "gray" | "neutral" | "neutral" | "neutral",
           variant: "subtle",
           size: "sm",
         },
@@ -153,7 +153,7 @@ const columns: TableColumn<AuditLog>[] = [
       h(
         UBadge,
         {
-          color: row.original.success ? "success" : "error",
+          color: row.original.success ? "gray" : "gray",
           variant: "subtle",
           size: "sm",
         },
@@ -253,8 +253,8 @@ onMounted(async () => {
     <div v-if="summary" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       <UCard>
         <div class="flex items-center gap-3">
-          <div class="p-2 bg-blue-500/10 rounded-lg">
-            <UIcon name="i-lucide-activity" class="w-5 h-5 text-blue-500" />
+          <div class="p-2 bg-gray-800/10 dark:bg-white/10 rounded-lg">
+            <UIcon name="i-lucide-activity" class="w-5 h-5 text-gray-800 dark:text-gray-200" />
           </div>
           <div>
             <p class="text-sm text-muted-foreground">Total Events (24h)</p>
@@ -265,8 +265,8 @@ onMounted(async () => {
 
       <UCard>
         <div class="flex items-center gap-3">
-          <div class="p-2 bg-green-500/10 rounded-lg">
-            <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-green-500" />
+          <div class="p-2 bg-gray-700/10 dark:bg-white/10 rounded-lg">
+            <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-gray-700 dark:text-gray-300" />
           </div>
           <div>
             <p class="text-sm text-muted-foreground">Successful</p>
@@ -277,8 +277,8 @@ onMounted(async () => {
 
       <UCard>
         <div class="flex items-center gap-3">
-          <div class="p-2 bg-red-500/10 rounded-lg">
-            <UIcon name="i-lucide-x-circle" class="w-5 h-5 text-red-500" />
+          <div class="p-2 bg-gray-800/10 dark:bg-white/10 rounded-lg">
+            <UIcon name="i-lucide-x-circle" class="w-5 h-5 text-gray-800 dark:text-gray-200" />
           </div>
           <div>
             <p class="text-sm text-muted-foreground">Failed</p>
@@ -289,8 +289,8 @@ onMounted(async () => {
 
       <UCard>
         <div class="flex items-center gap-3">
-          <div class="p-2 bg-purple-500/10 rounded-lg">
-            <UIcon name="i-lucide-layers" class="w-5 h-5 text-purple-500" />
+          <div class="p-2 bg-gray-600/10 dark:bg-white/10 rounded-lg">
+            <UIcon name="i-lucide-layers" class="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </div>
           <div>
             <p class="text-sm text-muted-foreground">Resources</p>
@@ -335,7 +335,7 @@ onMounted(async () => {
         <UTable :data="auditLogs" :columns="columns" :loading="isLoading">
         <template #loading-state>
           <div class="flex items-center justify-center py-12">
-            <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary" />
+            <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-gray-900 dark:text-white" />
           </div>
         </template>
 
@@ -372,7 +372,7 @@ onMounted(async () => {
     <UModal v-model:open="isDetailModalOpen" title="Audit Log Details">
       <template #body>
         <div v-if="loadingDetail" class="flex items-center justify-center py-8">
-          <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-primary" />
+          <UIcon name="i-lucide-loader-2" class="w-8 h-8 animate-spin text-gray-900 dark:text-white" />
         </div>
 
         <div v-else-if="selectedLog" class="space-y-4">
@@ -409,7 +409,7 @@ onMounted(async () => {
             <div>
               <p class="text-sm text-muted-foreground">Action</p>
               <UBadge
-                :color="formatAction(selectedLog.action).color as 'primary' | 'success' | 'error' | 'warning' | 'info' | 'neutral'"
+                :color="formatAction(selectedLog.action).color as 'gray' | 'gray' | 'gray' | 'neutral' | 'neutral' | 'neutral'"
                 variant="subtle"
               >
                 {{ formatAction(selectedLog.action).label }}
@@ -417,7 +417,7 @@ onMounted(async () => {
             </div>
             <div>
               <p class="text-sm text-muted-foreground">Status</p>
-              <UBadge :color="selectedLog.success ? 'success' : 'error'" variant="subtle">
+              <UBadge :color="selectedLog.success ? 'gray' : 'gray'" variant="subtle">
                 {{ selectedLog.success ? "Success" : "Failed" }}
               </UBadge>
             </div>
@@ -463,7 +463,7 @@ onMounted(async () => {
             </div>
             <div v-if="selectedLog.errorCode">
               <p class="text-sm text-muted-foreground">Error Code</p>
-              <UBadge color="error" variant="subtle">{{ selectedLog.errorCode }}</UBadge>
+              <UBadge color="gray" variant="subtle">{{ selectedLog.errorCode }}</UBadge>
             </div>
           </div>
 

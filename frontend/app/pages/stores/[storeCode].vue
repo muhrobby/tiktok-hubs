@@ -184,7 +184,7 @@ const renderGrowth = (value: number, growth: number | null) => {
 
   const isPositive = growth > 0;
   const isNegative = growth < 0;
-  const color = isPositive ? "green" : isNegative ? "red" : "gray";
+  const color = isPositive ? "gray" : isNegative ? "gray" : "gray";
   const icon = isPositive
     ? "i-lucide-trending-up"
     : isNegative
@@ -256,7 +256,7 @@ const videoColumns: TableColumn<any>[] = [
       h(
         UButton,
         {
-          color: "primary",
+          color: "gray",
           variant: "ghost",
           size: "xs",
           onClick: () => window.open(row.original.shareUrl, "_blank"),
@@ -460,7 +460,7 @@ onMounted(() => {
             </UButton>
             <UButton
               v-if="canTriggerSync"
-              color="primary"
+              color="gray"
               icon="i-lucide-refresh-cw"
               :loading="syncing"
               @click="handleSync"
@@ -483,12 +483,12 @@ onMounted(() => {
         <div v-else class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <UCard>
             <div class="flex items-center gap-3 p-4">
-              <div class="p-2 rounded-lg bg-primary/10">
-                <UIcon name="i-lucide-users" class="w-5 h-5 text-primary" />
+              <div class="p-2 rounded-lg bg-gray-900/10 dark:bg-white/10">
+                <UIcon name="i-lucide-users" class="w-5 h-5 text-gray-900 dark:text-white" />
               </div>
               <div>
                 <div class="text-sm text-gray-500">Pengikut</div>
-                <div class="text-xl font-bold text-primary">
+                <div class="text-xl font-bold text-gray-900 dark:text-white">
                   {{ formatNumber(latestUserStats.followerCount) }}
                 </div>
               </div>
@@ -496,10 +496,10 @@ onMounted(() => {
           </UCard>
           <UCard>
             <div class="flex items-center gap-3 p-4">
-              <div class="p-2 rounded-lg bg-blue-500/10">
+              <div class="p-2 rounded-lg bg-gray-800/10 dark:bg-white/10">
                 <UIcon
                   name="i-lucide-user-check"
-                  class="w-5 h-5 text-blue-500"
+                  class="w-5 h-5 text-gray-800 dark:text-gray-200"
                 />
               </div>
               <div>
@@ -512,8 +512,8 @@ onMounted(() => {
           </UCard>
           <UCard>
             <div class="flex items-center gap-3 p-4">
-              <div class="p-2 rounded-lg bg-pink-500/10">
-                <UIcon name="i-lucide-heart" class="w-5 h-5 text-pink-500" />
+              <div class="p-2 rounded-lg bg-gray-600/10 dark:bg-white/10">
+                <UIcon name="i-lucide-heart" class="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </div>
               <div>
                 <div class="text-sm text-gray-500">Total Suka</div>
@@ -525,8 +525,8 @@ onMounted(() => {
           </UCard>
           <UCard>
             <div class="flex items-center gap-3 p-4">
-              <div class="p-2 rounded-lg bg-emerald-500/10">
-                <UIcon name="i-lucide-video" class="w-5 h-5 text-emerald-500" />
+              <div class="p-2 rounded-lg bg-gray-700/10 dark:bg-white/10">
+                <UIcon name="i-lucide-video" class="w-5 h-5 text-gray-700 dark:text-gray-300" />
               </div>
               <div>
                 <div class="text-sm text-gray-500">Video</div>

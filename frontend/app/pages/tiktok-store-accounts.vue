@@ -404,11 +404,11 @@ const handleSyncAll = async () => {
 const getStatusColor = (status: string) => {
   switch (status) {
     case "CONNECTED":
-      return "success";
+      return "gray";
     case "NEED_RECONNECT":
-      return "warning";
+      return "neutral";
     case "ERROR":
-      return "error";
+      return "gray";
     default:
       return "neutral";
   }
@@ -487,7 +487,7 @@ if (isAdminOrOps.value) {
       return h(
         UBadge,
         {
-          color: rate > 5 ? "success" : rate > 2 ? "warning" : "neutral",
+          color: rate > 5 ? "gray" : rate > 2 ? "neutral" : "neutral",
           variant: "subtle",
         },
         { default: () => rate.toFixed(2) + "%" }
@@ -539,7 +539,7 @@ columns.push({
         h(UButton, {
           size: "sm",
           variant: "soft",
-          color: "primary",
+          color: "gray",
           label: "Lihat",
           onClick: () => navigateTo(`/stores/${storeCode}`),
         }),
@@ -548,7 +548,7 @@ columns.push({
           ? h(UButton, {
               size: "sm",
               variant: "outline",
-              color: "success",
+              color: "gray",
               icon: "i-lucide-link",
               label: "Connect",
               onClick: () => handleConnect(storeCode),
@@ -556,7 +556,7 @@ columns.push({
           : h(UButton, {
               size: "sm",
               variant: "ghost",
-              color: "error",
+              color: "gray",
               icon: "i-lucide-unlink",
               onClick: () => handleDisconnect(storeCode),
             }),
@@ -611,7 +611,7 @@ onMounted(() => {
           v-if="isAdminOrOps"
           icon="i-lucide-refresh-cw"
           variant="outline"
-          color="primary"
+          color="gray"
           :loading="isSyncing"
           @click="handleSyncAll"
           size="sm"
@@ -647,8 +647,8 @@ onMounted(() => {
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
       <UCard>
         <div class="flex items-center gap-3">
-          <div class="p-2 bg-primary/10 rounded-lg flex-shrink-0">
-            <UIcon name="i-lucide-store" class="w-5 h-5 text-primary" />
+          <div class="p-2 bg-gray-900/10 dark:bg-white/10 rounded-lg flex-shrink-0">
+            <UIcon name="i-lucide-store" class="w-5 h-5 text-gray-900 dark:text-white" />
           </div>
           <div class="min-w-0">
             <p class="text-xs sm:text-sm text-muted-foreground">Total Stores</p>
@@ -662,8 +662,8 @@ onMounted(() => {
 
       <UCard>
         <div class="flex items-center gap-3">
-          <div class="p-2 bg-success/10 rounded-lg flex-shrink-0">
-            <UIcon name="i-lucide-users" class="w-5 h-5 text-success" />
+          <div class="p-2 bg-gray-800/10 dark:bg-white/10 rounded-lg flex-shrink-0">
+            <UIcon name="i-lucide-users" class="w-5 h-5 text-gray-800 dark:text-gray-200" />
           </div>
           <div class="min-w-0">
             <p class="text-xs sm:text-sm text-muted-foreground">Total Followers</p>
@@ -674,8 +674,8 @@ onMounted(() => {
 
       <UCard>
         <div class="flex items-center gap-3">
-          <div class="p-2 bg-info/10 rounded-lg flex-shrink-0">
-            <UIcon name="i-lucide-video" class="w-5 h-5 text-info" />
+          <div class="p-2 bg-gray-700/10 dark:bg-white/10 rounded-lg flex-shrink-0">
+            <UIcon name="i-lucide-video" class="w-5 h-5 text-gray-700 dark:text-gray-300" />
           </div>
           <div class="min-w-0">
             <p class="text-xs sm:text-sm text-muted-foreground">Total Videos</p>
@@ -686,8 +686,8 @@ onMounted(() => {
 
       <UCard v-if="isAdminOrOps">
         <div class="flex items-center gap-3">
-          <div class="p-2 bg-warning/10 rounded-lg flex-shrink-0">
-            <UIcon name="i-lucide-eye" class="w-5 h-5 text-warning" />
+          <div class="p-2 bg-gray-600/10 dark:bg-white/10 rounded-lg flex-shrink-0">
+            <UIcon name="i-lucide-eye" class="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </div>
           <div class="min-w-0">
             <p class="text-xs sm:text-sm text-muted-foreground">Total Views</p>
@@ -828,7 +828,7 @@ onMounted(() => {
               <div class="flex flex-col items-center gap-3">
                 <UIcon
                   name="i-lucide-loader-2"
-                  class="w-8 h-8 animate-spin text-primary"
+                  class="w-8 h-8 animate-spin text-gray-900 dark:text-white"
                 />
                 <p class="text-sm text-muted-foreground">Memuat data...</p>
               </div>

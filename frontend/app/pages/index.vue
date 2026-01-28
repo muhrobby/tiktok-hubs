@@ -99,7 +99,7 @@ const getStoreData = (store: Store) => {
         <UButton
           v-if="canCreateStore"
           to="/tiktok-store-accounts"
-          color="primary"
+          color="gray"
           icon="i-lucide-plus"
           size="sm"
           class="shadow-lg w-full sm:w-auto"
@@ -121,7 +121,7 @@ const getStoreData = (store: Store) => {
             >
               Total Toko
             </p>
-            <p class="text-3xl sm:text-4xl font-bold text-primary truncate">
+            <p class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white truncate">
               {{ loading ? "-" : storeCount }}
             </p>
             <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
@@ -129,8 +129,8 @@ const getStoreData = (store: Store) => {
               <span class="truncate">Semua toko terdaftar</span>
             </p>
           </div>
-          <div class="p-3 sm:p-4 bg-primary/10 rounded-xl flex-shrink-0">
-            <UIcon name="i-lucide-store" class="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+          <div class="p-3 sm:p-4 bg-gray-900/10 dark:bg-white/10 rounded-xl flex-shrink-0">
+            <UIcon name="i-lucide-store" class="w-6 h-6 sm:w-8 sm:h-8 text-gray-900 dark:text-white" />
           </div>
         </div>
       </UCard>
@@ -144,7 +144,7 @@ const getStoreData = (store: Store) => {
             >
               Akun Terkoneksi
             </p>
-            <p class="text-3xl sm:text-4xl font-bold text-success truncate">
+            <p class="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-gray-200 truncate">
               {{ loading ? "-" : connectedCount }}
             </p>
             <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
@@ -152,8 +152,8 @@ const getStoreData = (store: Store) => {
               <span class="truncate">Akun aktif terkoneksi</span>
             </p>
           </div>
-          <div class="p-3 sm:p-4 bg-success/10 rounded-xl flex-shrink-0">
-            <UIcon name="i-lucide-link" class="w-6 h-6 sm:w-8 sm:h-8 text-success" />
+          <div class="p-3 sm:p-4 bg-gray-800/10 dark:bg-white/10 rounded-xl flex-shrink-0">
+            <UIcon name="i-lucide-link" class="w-6 h-6 sm:w-8 sm:h-8 text-gray-800 dark:text-gray-200" />
           </div>
         </div>
       </UCard>
@@ -175,8 +175,8 @@ const getStoreData = (store: Store) => {
               <span class="truncate">Data sinkronisasi</span>
             </p>
           </div>
-          <div class="p-3 sm:p-4 bg-blue-500/10 rounded-xl flex-shrink-0">
-            <UIcon name="i-lucide-clock" class="w-6 h-6 sm:w-8 sm:h-8 text-blue-500" />
+          <div class="p-3 sm:p-4 bg-gray-800/10 dark:bg-white/10 rounded-xl flex-shrink-0">
+            <UIcon name="i-lucide-clock" class="w-6 h-6 sm:w-8 sm:h-8 text-gray-800 dark:text-gray-200" />
           </div>
         </div>
       </UCard>
@@ -189,8 +189,8 @@ const getStoreData = (store: Store) => {
         @click="$router.push('/tiktok-store-accounts')"
       >
         <div class="flex items-center gap-3 sm:gap-4">
-          <div class="p-2 sm:p-3 bg-primary/10 rounded-lg flex-shrink-0">
-            <UIcon name="i-lucide-store" class="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+          <div class="p-2 sm:p-3 bg-gray-900/10 dark:bg-white/10 rounded-lg flex-shrink-0">
+            <UIcon name="i-lucide-store" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-900 dark:text-white" />
           </div>
           <div class="flex-1 min-w-0">
             <h3 class="font-semibold text-base sm:text-lg mb-1 truncate">Kelola Store Accounts</h3>
@@ -207,8 +207,8 @@ const getStoreData = (store: Store) => {
         @click="$router.push('/analytics')"
       >
         <div class="flex items-center gap-3 sm:gap-4">
-          <div class="p-2 sm:p-3 bg-success/10 rounded-lg flex-shrink-0">
-            <UIcon name="i-lucide-bar-chart-3" class="w-5 h-5 sm:w-6 sm:h-6 text-success" />
+          <div class="p-2 sm:p-3 bg-gray-800/10 dark:bg-white/10 rounded-lg flex-shrink-0">
+            <UIcon name="i-lucide-bar-chart-3" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-800 dark:text-gray-200" />
           </div>
           <div class="flex-1 min-w-0">
             <h3 class="font-semibold text-base sm:text-lg mb-1 truncate">Analytics</h3>
@@ -251,7 +251,7 @@ const getStoreData = (store: Store) => {
       >
         <UIcon
           name="i-lucide-loader-2"
-          class="animate-spin w-8 h-8 sm:w-10 sm:h-10 mb-4 text-primary"
+          class="animate-spin w-8 h-8 sm:w-10 sm:h-10 mb-4 text-gray-900 dark:text-white"
         />
         <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400">Memuat data toko...</p>
       </div>
@@ -266,7 +266,7 @@ const getStoreData = (store: Store) => {
         <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 sm:mb-6">
           {{ canCreateStore ? 'Mulai dengan menambahkan toko pertama Anda' : 'Tidak ada toko yang tersedia' }}
         </p>
-        <UButton v-if="canCreateStore" to="/tiktok-store-accounts" color="primary" icon="i-lucide-plus" size="sm" class="sm:size-md">
+        <UButton v-if="canCreateStore" to="/tiktok-store-accounts" color="gray" icon="i-lucide-plus" size="sm" class="sm:size-md">
           <span class="hidden sm:inline">Tambah Toko Sekarang</span>
           <span class="sm:hidden">Tambah Toko</span>
         </UButton>
@@ -282,19 +282,19 @@ const getStoreData = (store: Store) => {
           <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
             <div class="relative flex-shrink-0">
               <div
-                class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center"
+                class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-900/10 dark:bg-white/10 flex items-center justify-center"
               >
-                <UIcon name="i-lucide-store" class="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                <UIcon name="i-lucide-store" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-900 dark:text-white" />
               </div>
               <div
                 v-if="getStoreData(store).hasConnected"
-                class="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-success rounded-full border-2 border-white dark:border-gray-900"
+                class="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-gray-800 dark:bg-gray-200 rounded-full border-2 border-white dark:border-gray-900"
               />
             </div>
 
             <div class="flex-1 min-w-0">
               <h4
-                class="font-semibold text-base sm:text-lg group-hover:text-primary transition-colors truncate"
+                class="font-semibold text-base sm:text-lg group-hover:text-gray-900 dark:group-hover:text-white transition-colors truncate"
               >
                 {{ store.storeName }}
               </h4>
@@ -313,7 +313,7 @@ const getStoreData = (store: Store) => {
             </div>
 
             <UBadge
-              :color="getStoreData(store).hasConnected ? 'success' : 'neutral'"
+              :color="getStoreData(store).hasConnected ? 'gray' : 'neutral'"
               variant="subtle"
               class="hidden sm:inline-flex flex-shrink-0"
               size="xs"
@@ -328,7 +328,7 @@ const getStoreData = (store: Store) => {
 
           <UIcon
             name="i-lucide-chevron-right"
-            class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-primary group-hover:translate-x-1 transition-all ml-2 sm:ml-4 flex-shrink-0"
+            class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white group-hover:translate-x-1 transition-all ml-2 sm:ml-4 flex-shrink-0"
           />
         </NuxtLink>
 
