@@ -89,31 +89,34 @@ const getStoreData = (store: Store) => {
 </script>
 
 <template>
-  <UContainer class="py-4 sm:py-6 max-w-full overflow-x-hidden">
-    <!-- Header with Burger Menu -->
-    <PageHeader 
-      title="Dashboard" 
-      description="Selamat datang di Sosmed HUB - Kelola semua akun sosial media Anda"
-    >
-      <template #actions>
-        <UButton
-          v-if="canCreateStore"
-          to="/tiktok-store-accounts"
-          color="gray"
-          icon="i-lucide-plus"
-          size="sm"
-          class="shadow-lg w-full sm:w-auto"
-        >
-          <span class="hidden sm:inline">Tambah Toko Baru</span>
-          <span class="sm:hidden">Tambah Toko</span>
-        </UButton>
-      </template>
-    </PageHeader>
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar title="Dashboard">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
 
-    <!-- Stats Cards with Enhanced Design -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-      <!-- Total Stores -->
-      <UCard class="hover:shadow-lg transition-shadow">
+        <template #right>
+          <UButton
+            v-if="canCreateStore"
+            to="/tiktok-store-accounts"
+            color="gray"
+            icon="i-lucide-plus"
+            size="sm"
+          >
+            <span class="hidden sm:inline">Tambah Toko Baru</span>
+            <span class="sm:hidden">Tambah Toko</span>
+          </UButton>
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+
+      <!-- Stats Cards with Enhanced Design -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <!-- Total Stores -->
+        <UCard class="hover:shadow-lg transition-shadow">
         <div class="flex items-center justify-between">
           <div class="min-w-0 flex-1">
             <p
@@ -345,5 +348,6 @@ const getStoreData = (store: Store) => {
         </div>
       </div>
     </UCard>
-  </UContainer>
+    </template>
+  </UDashboardPanel>
 </template>

@@ -600,52 +600,54 @@ onMounted(() => {
 </script>
 
 <template>
-  <UContainer class="py-4 sm:py-6 max-w-full overflow-x-hidden">
-    <!-- Header -->
-    <PageHeader
-      title="TikTok Store Accounts"
-      description="Kelola toko, koneksi platform, dan lihat performa akun"
-    >
-      <template #actions>
-        <UButton
-          v-if="isAdminOrOps"
-          icon="i-lucide-refresh-cw"
-          variant="outline"
-          color="gray"
-          :loading="isSyncing"
-          @click="handleSyncAll"
-          size="sm"
-          class="w-full sm:w-auto"
-        >
-          <span class="hidden sm:inline">Sync Semua Data</span>
-          <span class="sm:hidden">Sync All</span>
-        </UButton>
-        <UButton
-          v-if="canCreateStore"
-          icon="i-lucide-plus"
-          @click="isModalOpen = true"
-          size="sm"
-          class="w-full sm:w-auto"
-        >
-          <span class="hidden sm:inline">Tambah Toko</span>
-          <span class="sm:hidden">Tambah</span>
-        </UButton>
-        <UButton
-          icon="i-lucide-refresh-cw"
-          variant="outline"
-          @click="loadStores"
-          :loading="loading"
-          size="sm"
-          class="w-full sm:w-auto"
-        >
-          Refresh
-        </UButton>
-      </template>
-    </PageHeader>
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar title="TikTok Store Accounts" icon="i-lucide-store">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
 
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-      <UCard>
+        <template #right>
+          <div class="flex items-center gap-2">
+            <UButton
+              v-if="isAdminOrOps"
+              icon="i-lucide-refresh-cw"
+              variant="outline"
+              color="gray"
+              :loading="isSyncing"
+              @click="handleSyncAll"
+              size="sm"
+            >
+              <span class="hidden sm:inline">Sync Semua Data</span>
+              <span class="sm:hidden">Sync All</span>
+            </UButton>
+            <UButton
+              v-if="canCreateStore"
+              icon="i-lucide-plus"
+              @click="isModalOpen = true"
+              size="sm"
+            >
+              <span class="hidden sm:inline">Tambah Toko</span>
+              <span class="sm:hidden">Tambah</span>
+            </UButton>
+            <UButton
+              icon="i-lucide-refresh-cw"
+                  variant="outline"
+              @click="loadStores"
+              :loading="loading"
+              size="sm"
+            >
+              Refresh
+            </UButton>
+          </div>
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <UCard>
         <div class="flex items-center gap-3">
           <div class="p-2 bg-gray-900/10 dark:bg-white/10 rounded-lg flex-shrink-0">
             <UIcon name="i-lucide-store" class="w-5 h-5 text-gray-900 dark:text-white" />
@@ -934,5 +936,6 @@ onMounted(() => {
         </div>
       </div>
     </UCard>
-  </UContainer>
+    </template>
+  </UDashboardPanel>
 </template>

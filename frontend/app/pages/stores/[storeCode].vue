@@ -604,11 +604,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex-1 overflow-y-auto">
-    <UContainer class="py-6 pb-8">
-      <!-- Header -->
-      <PageHeader :title="storeCode" description="Analitik & Performa">
-        <template #actions>
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar :title="storeCode" icon="i-lucide-store">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
+
+        <template #right>
           <div class="flex gap-2">
             <UButton
               to="/tiktok-store-accounts"
@@ -629,8 +632,10 @@ onMounted(() => {
             </UButton>
           </div>
         </template>
-      </PageHeader>
+      </UDashboardNavbar>
+    </template>
 
+    <template #body>
       <!-- User Stats -->
       <div class="mb-6">
         <h2 class="text-xl font-semibold mb-3">Statistik Pengguna</h2>
@@ -1175,6 +1180,6 @@ onMounted(() => {
           </div>
         </div>
       </UCard>
-    </UContainer>
-  </div>
+    </template>
+  </UDashboardPanel>
 </template>
