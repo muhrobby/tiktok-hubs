@@ -45,6 +45,11 @@ export const auditActionEnum = pgEnum("audit_action", [
   "EXPORT",
   "IMPORT",
   "SYNC",
+  "CONNECT",
+  "DISCONNECT",
+  "AUTHORIZE",
+  "REFRESH_TOKEN",
+  "BULK_DELETE",
 ]);
 
 // ============================================

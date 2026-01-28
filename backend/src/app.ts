@@ -25,6 +25,7 @@ import exportImportRoutes from "./routes/exportImport.routes.js";
 import auditLogsRoutes from "./routes/auditLogs.routes.js";
 import { getSchedulerStatus } from "./jobs/scheduler.js";
 import { createDocsApp } from "./docs/index.js";
+import { auditMiddleware } from "./middleware/auditLogger.js";
 
 // Import security middleware
 import {
@@ -142,13 +143,16 @@ export function createApp() {
     app.use("*", honoLogger());
   }
 
-  // 8. Rate limiting for specific routes
+  // 8. Audit logging middleware (tracks all operations)
+  app.use("*", auditMiddleware());
+
+  // 9. Rate limiting for specific routes
   app.use("/admin/*", adminRateLimiter());
   app.use("/connect/*", oauthRateLimiter());
   app.use("/auth/*", oauthRateLimiter());
   app.use("/user-auth/*", oauthRateLimiter()); // Use same rate limit for login attempts
 
-  // 9. Audit logging for admin routes
+  // 10. Old audit logging for admin routes (backward compatibility)
   app.use("/admin/*", auditLogMiddleware());
 
   // ============================================
