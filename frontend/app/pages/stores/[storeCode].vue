@@ -51,8 +51,8 @@ const loading = ref(true);
 const syncing = ref(false);
 
 // Table refs
-const _userStatsTable = ref<TableRef | null>(null);
-const _videoStatsTable = ref<TableRef | null>(null);
+const userStatsTable = ref<TableRef | null>(null);
+const videoStatsTable = ref<TableRef | null>(null);
 const syncLogsTable = ref<TableRef | null>(null);
 
 // Search states
@@ -65,6 +65,22 @@ const userStatsPagination = ref({ pageIndex: 0, pageSize: 10 });
 const videoStatsPagination = ref({ pageIndex: 0, pageSize: 10 });
 const syncLogsPagination = ref({ pageIndex: 0, pageSize: 10 });
 
+// Advanced filters
+const videoFilters = ref({
+  minViews: "",
+  maxViews: "",
+  minLikes: "",
+  maxLikes: "",
+  dateFrom: "",
+  dateTo: "",
+  sortBy: "viewCount" as "viewCount" | "likeCount" | "commentCount" | "shareCount" | "createTime",
+  sortOrder: "desc" as "asc" | "desc",
+});
+
+const userStatsFilters = ref({
+  showHistory: false, // Toggle to show all history or just latest
+});
+
 // Computed: Latest stats for stat cards (backend returns DESC ordered)
 const latestUserStats = computed(() => {
   if (userStats.value.length === 0) return null;
@@ -72,10 +88,30 @@ const latestUserStats = computed(() => {
   return userStats.value[0];
 });
 
-// Computed: Latest user stats with growth indicators (show only latest row)
+// Computed: Latest user stats with growth indicators
 const latestUserStatsWithGrowth = computed(() => {
   if (userStats.value.length === 0) return [];
 
+  // If showHistory is true, show all user stats history, otherwise just latest
+  if (userStatsFilters.value.showHistory) {
+    // Show full history with growth indicators
+    return userStats.value.map((stat, index) => {
+      const previous = userStats.value[index + 1] || null;
+      return {
+        ...stat,
+        followerGrowth: previous
+          ? stat.followerCount - previous.followerCount
+          : null,
+        followingGrowth: previous
+          ? stat.followingCount - previous.followingCount
+          : null,
+        likesGrowth: previous ? stat.likesCount - previous.likesCount : null,
+        videoGrowth: previous ? stat.videoCount - previous.videoCount : null,
+      };
+    });
+  }
+
+  // Show only latest
   const latest = userStats.value[0]!;
   const previous = userStats.value[1] || null;
 
@@ -94,7 +130,7 @@ const latestUserStatsWithGrowth = computed(() => {
   ];
 });
 
-// Computed: Latest video stats with growth indicators (show only latest data)
+// Computed: Latest video stats with growth indicators and advanced filters
 const latestVideoStatsWithGrowth = computed(() => {
   if (videoStats.value.length === 0) return [];
 
@@ -108,7 +144,7 @@ const latestVideoStatsWithGrowth = computed(() => {
   });
 
   // Get latest stats for each video with growth
-  const latestVideos: any[] = [];
+  let latestVideos: any[] = [];
   videoMap.forEach((videos) => {
     const latest = videos[0]; // Already sorted DESC
     const previous = videos[1] || null;
@@ -124,13 +160,63 @@ const latestVideoStatsWithGrowth = computed(() => {
     });
   });
 
+  // Apply advanced filters
+  if (videoFilters.value.minViews) {
+    const min = parseInt(videoFilters.value.minViews);
+    latestVideos = latestVideos.filter(v => v.viewCount >= min);
+  }
+  if (videoFilters.value.maxViews) {
+    const max = parseInt(videoFilters.value.maxViews);
+    latestVideos = latestVideos.filter(v => v.viewCount <= max);
+  }
+  if (videoFilters.value.minLikes) {
+    const min = parseInt(videoFilters.value.minLikes);
+    latestVideos = latestVideos.filter(v => v.likeCount >= min);
+  }
+  if (videoFilters.value.maxLikes) {
+    const max = parseInt(videoFilters.value.maxLikes);
+    latestVideos = latestVideos.filter(v => v.likeCount <= max);
+  }
+  if (videoFilters.value.dateFrom) {
+    const from = new Date(videoFilters.value.dateFrom);
+    latestVideos = latestVideos.filter(v => new Date(v.createTime) >= from);
+  }
+  if (videoFilters.value.dateTo) {
+    const to = new Date(videoFilters.value.dateTo);
+    latestVideos = latestVideos.filter(v => new Date(v.createTime) <= to);
+  }
+
+  // Apply sorting
+  latestVideos.sort((a, b) => {
+    const sortBy = videoFilters.value.sortBy;
+    const order = videoFilters.value.sortOrder;
+    
+    let aVal = a[sortBy];
+    let bVal = b[sortBy];
+    
+    // Handle date sorting
+    if (sortBy === 'createTime') {
+      aVal = new Date(aVal).getTime();
+      bVal = new Date(bVal).getTime();
+    }
+    
+    if (order === 'asc') {
+      return aVal - bVal;
+    } else {
+      return bVal - aVal;
+    }
+  });
+
   return latestVideos;
 });
 
 const filteredUserStats = computed(() => {
-  if (!userStatsSearch.value) return userStats.value;
+  let data = latestUserStatsWithGrowth.value;
+  
+  if (!userStatsSearch.value) return data;
+  
   const query = userStatsSearch.value.toLowerCase();
-  return userStats.value.filter((stat) =>
+  return data.filter((stat) =>
     [
       stat.displayName,
       stat.followerCount.toString(),
@@ -143,12 +229,16 @@ const filteredUserStats = computed(() => {
 });
 
 const filteredVideoStats = computed(() => {
-  if (!videoStatsSearch.value) return videoStats.value;
+  let data = latestVideoStatsWithGrowth.value;
+  
+  if (!videoStatsSearch.value) return data;
+  
   const query = videoStatsSearch.value.toLowerCase();
-  return videoStats.value.filter((video) =>
+  return data.filter((video) =>
     [
-      video.description,
+      video.description || "",
       video.viewCount.toString(),
+      video.likeCount.toString(),
       formatDate(video.createTime, "dd MMM yyyy"),
     ]
       .join(" ")
@@ -438,6 +528,34 @@ const handleSync = async () => {
   }
 };
 
+// Clear video filters
+const clearVideoFilters = () => {
+  videoFilters.value = {
+    minViews: "",
+    maxViews: "",
+    minLikes: "",
+    maxLikes: "",
+    dateFrom: "",
+    dateTo: "",
+    sortBy: "viewCount",
+    sortOrder: "desc",
+  };
+  videoStatsSearch.value = "";
+};
+
+// Check if video filters are active
+const hasActiveVideoFilters = computed(() => {
+  return !!(
+    videoFilters.value.minViews ||
+    videoFilters.value.maxViews ||
+    videoFilters.value.minLikes ||
+    videoFilters.value.maxLikes ||
+    videoFilters.value.dateFrom ||
+    videoFilters.value.dateTo ||
+    videoStatsSearch.value
+  );
+});
+
 onMounted(() => {
   loadData();
 });
@@ -543,11 +661,33 @@ onMounted(() => {
       <div class="mb-6">
         <UCard>
           <template #header>
-            <div>
-              <h3 class="text-lg font-semibold">Statistik Harian Pengguna</h3>
-              <p class="text-sm text-gray-500">
-                Data terbaru dengan indikator pertumbuhan
-              </p>
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 class="text-lg font-semibold">Statistik Harian Pengguna</h3>
+                <p class="text-sm text-gray-500">
+                  Data terbaru dengan indikator pertumbuhan
+                </p>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-full md:w-64">
+                  <UInput
+                    v-model="userStatsSearch"
+                    icon="i-lucide-search"
+                    placeholder="Cari username, tanggal..."
+                    size="sm"
+                    class="w-full"
+                  />
+                </div>
+                <UButton
+                  :variant="userStatsFilters.showHistory ? 'solid' : 'outline'"
+                  color="gray"
+                  size="sm"
+                  @click="userStatsFilters.showHistory = !userStatsFilters.showHistory"
+                >
+                  <UIcon name="i-lucide-history" class="mr-2" />
+                  {{ userStatsFilters.showHistory ? 'Riwayat Lengkap' : 'Hanya Terbaru' }}
+                </UButton>
+              </div>
             </div>
           </template>
 
@@ -563,10 +703,117 @@ onMounted(() => {
           <div v-else>
             <div class="overflow-x-auto">
               <UTable
-                :data="latestUserStatsWithGrowth"
+                ref="userStatsTable"
+                :data="filteredUserStats"
                 :columns="userStatColumns as any"
                 :loading="loading"
+                :state="{
+                  pagination: userStatsPagination ?? { pageIndex: 0, pageSize: 10 },
+                }"
+                :get-pagination-row-model="getPaginationRowModel()"
+                @update:pagination="(e) => { if (e) userStatsPagination = e }"
               />
+            </div>
+
+            <div
+              v-if="userStatsTable?.tableApi && userStatsFilters.showHistory"
+              class="flex flex-col sm:flex-row items-center justify-between px-2 py-4 border-t gap-4"
+            >
+              <div class="text-sm text-muted-foreground">
+                Menampilkan
+                {{
+                  userStatsTable.tableApi.getState().pagination.pageIndex *
+                    userStatsPagination.pageSize +
+                  1
+                }}
+                -
+                {{
+                  Math.min(
+                    (userStatsTable.tableApi.getState().pagination.pageIndex + 1) *
+                      userStatsPagination.pageSize,
+                    filteredUserStats.length,
+                  )
+                }}
+                dari
+                {{ filteredUserStats.length }} data
+              </div>
+              <div class="flex items-center gap-2">
+                <UButton
+                  :disabled="
+                    userStatsTable.tableApi.getState().pagination.pageIndex === 0
+                  "
+                  @click="userStatsTable.tableApi?.setPageIndex(0)"
+                  variant="outline"
+                  size="sm"
+                  icon="i-lucide-chevrons-left"
+                />
+                <UButton
+                  :disabled="
+                    userStatsTable.tableApi.getState().pagination.pageIndex === 0
+                  "
+                  @click="
+                    userStatsTable.tableApi?.setPageIndex(
+                      userStatsTable.tableApi.getState().pagination.pageIndex - 1,
+                    )
+                  "
+                  variant="outline"
+                  size="sm"
+                  icon="i-lucide-chevron-left"
+                />
+                <span class="text-sm px-2">
+                  Halaman
+                  {{ userStatsTable.tableApi.getState().pagination.pageIndex + 1 }}
+                  dari
+                  {{
+                    Math.max(
+                      1,
+                      Math.ceil(
+                        filteredUserStats.length / userStatsPagination.pageSize,
+                      ),
+                    )
+                  }}
+                </span>
+                <UButton
+                  :disabled="
+                    userStatsTable.tableApi.getState().pagination.pageIndex >=
+                    Math.ceil(
+                      filteredUserStats.length / userStatsPagination.pageSize,
+                    ) -
+                      1
+                  "
+                  @click="
+                    userStatsTable.tableApi?.setPageIndex(
+                      userStatsTable.tableApi.getState().pagination.pageIndex + 1,
+                    )
+                  "
+                  variant="outline"
+                  size="sm"
+                  icon="i-lucide-chevron-right"
+                />
+                <UButton
+                  :disabled="
+                    userStatsTable.tableApi.getState().pagination.pageIndex >=
+                    Math.ceil(
+                      userStatsTable.tableApi.getFilteredRowModel().rows.length /
+                        userStatsPagination.pageSize,
+                    ) -
+                      1
+                  "
+                  @click="
+                    userStatsTable.tableApi?.setPageIndex(
+                      Math.max(
+                        0,
+                        Math.ceil(
+                          filteredUserStats.length / userStatsPagination.pageSize,
+                        ) - 1,
+                      ),
+                    )
+                  "
+                  variant="outline"
+                  size="sm"
+                  icon="i-lucide-chevrons-right"
+                />
+              </div>
             </div>
           </div>
         </UCard>
@@ -594,12 +841,290 @@ onMounted(() => {
             Tidak ada data video
           </div>
           <div v-else>
+            <!-- Search & Filters -->
+            <div class="mb-4 space-y-4">
+              <!-- Search Bar -->
+              <div class="flex flex-col md:flex-row gap-3">
+                <div class="flex-1">
+                  <UInput
+                    v-model="videoStatsSearch"
+                    icon="i-lucide-search"
+                    placeholder="Cari deskripsi, views, likes..."
+                    size="sm"
+                  />
+                </div>
+                <div class="flex gap-2">
+                  <UButton
+                    v-if="hasActiveVideoFilters"
+                    color="gray"
+                    variant="ghost"
+                    size="sm"
+                    icon="i-lucide-x"
+                    @click="clearVideoFilters"
+                  >
+                    Reset Filter
+                  </UButton>
+                </div>
+              </div>
+
+              <!-- Advanced Filters -->
+              <UAccordion 
+                :items="[{ 
+                  label: 'Filter Lanjutan', 
+                  icon: 'i-lucide-filter',
+                  defaultOpen: false
+                }]"
+              >
+                <template #default>
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                    <!-- Views Range -->
+                    <div>
+                      <label class="text-xs font-medium text-gray-500 mb-1 block">
+                        Rentang Tayangan
+                      </label>
+                      <div class="flex gap-2 items-center">
+                        <UInput
+                          v-model="videoFilters.minViews"
+                          type="number"
+                          placeholder="Min"
+                          size="xs"
+                        />
+                        <span class="text-gray-400">-</span>
+                        <UInput
+                          v-model="videoFilters.maxViews"
+                          type="number"
+                          placeholder="Max"
+                          size="xs"
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Likes Range -->
+                    <div>
+                      <label class="text-xs font-medium text-gray-500 mb-1 block">
+                        Rentang Suka
+                      </label>
+                      <div class="flex gap-2 items-center">
+                        <UInput
+                          v-model="videoFilters.minLikes"
+                          type="number"
+                          placeholder="Min"
+                          size="xs"
+                        />
+                        <span class="text-gray-400">-</span>
+                        <UInput
+                          v-model="videoFilters.maxLikes"
+                          type="number"
+                          placeholder="Max"
+                          size="xs"
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div>
+                      <label class="text-xs font-medium text-gray-500 mb-1 block">
+                        Rentang Tanggal Posting
+                      </label>
+                      <div class="flex gap-2 items-center">
+                        <UInput
+                          v-model="videoFilters.dateFrom"
+                          type="date"
+                          size="xs"
+                        />
+                        <span class="text-gray-400">-</span>
+                        <UInput
+                          v-model="videoFilters.dateTo"
+                          type="date"
+                          size="xs"
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Sort By -->
+                    <div>
+                      <label class="text-xs font-medium text-gray-500 mb-1 block">
+                        Urutkan Berdasarkan
+                      </label>
+                      <USelectMenu
+                        v-model="videoFilters.sortBy"
+                        :options="[
+                          { value: 'viewCount', label: 'Tayangan' },
+                          { value: 'likeCount', label: 'Suka' },
+                          { value: 'commentCount', label: 'Komentar' },
+                          { value: 'shareCount', label: 'Bagikan' },
+                          { value: 'createTime', label: 'Tanggal Posting' },
+                        ]"
+                        option-attribute="label"
+                        value-attribute="value"
+                        size="xs"
+                      />
+                    </div>
+
+                    <!-- Sort Order -->
+                    <div>
+                      <label class="text-xs font-medium text-gray-500 mb-1 block">
+                        Urutan
+                      </label>
+                      <USelectMenu
+                        v-model="videoFilters.sortOrder"
+                        :options="[
+                          { value: 'desc', label: 'Tertinggi ke Terendah' },
+                          { value: 'asc', label: 'Terendah ke Tertinggi' },
+                        ]"
+                        option-attribute="label"
+                        value-attribute="value"
+                        size="xs"
+                      />
+                    </div>
+
+                    <!-- Results Count -->
+                    <div class="flex items-end">
+                      <div class="text-sm text-gray-500">
+                        <UIcon name="i-lucide-list-filter" class="mr-1" />
+                        {{ filteredVideoStats.length }} video ditampilkan
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </UAccordion>
+            </div>
+
+            <!-- Table -->
             <div class="overflow-x-auto">
               <UTable
-                :data="latestVideoStatsWithGrowth"
+                ref="videoStatsTable"
+                :data="filteredVideoStats"
                 :columns="videoColumns as any"
                 :loading="loading"
+                :state="{
+                  pagination: videoStatsPagination ?? { pageIndex: 0, pageSize: 10 },
+                }"
+                :get-pagination-row-model="getPaginationRowModel()"
+                @update:pagination="(e) => { if (e) videoStatsPagination = e }"
               />
+            </div>
+
+            <!-- Pagination -->
+            <div
+              v-if="videoStatsTable?.tableApi && filteredVideoStats.length > 0"
+              class="flex flex-col sm:flex-row items-center justify-between px-2 py-4 border-t gap-4"
+            >
+              <div class="text-sm text-muted-foreground">
+                Menampilkan
+                {{
+                  videoStatsTable.tableApi.getState().pagination.pageIndex *
+                    videoStatsPagination.pageSize +
+                  1
+                }}
+                -
+                {{
+                  Math.min(
+                    (videoStatsTable.tableApi.getState().pagination.pageIndex + 1) *
+                      videoStatsPagination.pageSize,
+                    filteredVideoStats.length,
+                  )
+                }}
+                dari
+                {{ filteredVideoStats.length }} video
+              </div>
+              
+              <!-- Page Size Selector -->
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-500">Per halaman:</span>
+                <USelectMenu
+                  v-model="videoStatsPagination.pageSize"
+                  :options="[
+                    { value: 5, label: '5' },
+                    { value: 10, label: '10' },
+                    { value: 20, label: '20' },
+                    { value: 50, label: '50' },
+                  ]"
+                  option-attribute="label"
+                  value-attribute="value"
+                  size="xs"
+                  @update:model-value="videoStatsTable.tableApi?.setPageIndex(0)"
+                />
+              </div>
+
+              <!-- Pagination Controls -->
+              <div class="flex items-center gap-2">
+                <UButton
+                  :disabled="
+                    videoStatsTable.tableApi.getState().pagination.pageIndex === 0
+                  "
+                  @click="videoStatsTable.tableApi?.setPageIndex(0)"
+                  variant="outline"
+                  size="sm"
+                  icon="i-lucide-chevrons-left"
+                />
+                <UButton
+                  :disabled="
+                    videoStatsTable.tableApi.getState().pagination.pageIndex === 0
+                  "
+                  @click="
+                    videoStatsTable.tableApi?.setPageIndex(
+                      videoStatsTable.tableApi.getState().pagination.pageIndex - 1,
+                    )
+                  "
+                  variant="outline"
+                  size="sm"
+                  icon="i-lucide-chevron-left"
+                />
+                <span class="text-sm px-2">
+                  Halaman
+                  {{ videoStatsTable.tableApi.getState().pagination.pageIndex + 1 }}
+                  dari
+                  {{
+                    Math.max(
+                      1,
+                      Math.ceil(
+                        filteredVideoStats.length / videoStatsPagination.pageSize,
+                      ),
+                    )
+                  }}
+                </span>
+                <UButton
+                  :disabled="
+                    videoStatsTable.tableApi.getState().pagination.pageIndex >=
+                    Math.ceil(
+                      filteredVideoStats.length / videoStatsPagination.pageSize,
+                    ) -
+                      1
+                  "
+                  @click="
+                    videoStatsTable.tableApi?.setPageIndex(
+                      videoStatsTable.tableApi.getState().pagination.pageIndex + 1,
+                    )
+                  "
+                  variant="outline"
+                  size="sm"
+                  icon="i-lucide-chevron-right"
+                />
+                <UButton
+                  :disabled="
+                    videoStatsTable.tableApi.getState().pagination.pageIndex >=
+                    Math.ceil(
+                      videoStatsTable.tableApi.getFilteredRowModel().rows.length /
+                        videoStatsPagination.pageSize,
+                    ) -
+                      1
+                  "
+                  @click="
+                    videoStatsTable.tableApi?.setPageIndex(
+                      Math.max(
+                        0,
+                        Math.ceil(
+                          filteredVideoStats.length / videoStatsPagination.pageSize,
+                        ) - 1,
+                      ),
+                    )
+                  "
+                  variant="outline"
+                  size="sm"
+                  icon="i-lucide-chevrons-right"
+                />
+              </div>
             </div>
           </div>
         </UCard>
