@@ -81,6 +81,8 @@ const userStatsFilters = ref({
   showHistory: false, // Toggle to show all history or just latest
 });
 
+const showAdvancedFilters = ref(false);
+
 // Computed: Latest stats for stat cards (backend returns DESC ordered)
 const latestUserStats = computed(() => {
   if (userStats.value.length === 0) return null;
@@ -841,41 +843,43 @@ onMounted(() => {
             Tidak ada data video
           </div>
           <div v-else>
-            <!-- Search & Filters -->
-            <div class="mb-4 space-y-4">
-              <!-- Search Bar -->
-              <div class="flex flex-col md:flex-row gap-3">
-                <div class="flex-1">
-                  <UInput
-                    v-model="videoStatsSearch"
-                    icon="i-lucide-search"
-                    placeholder="Cari deskripsi, views, likes..."
-                    size="sm"
-                  />
+              <!-- Search & Filters -->
+              <div class="mb-4 space-y-4">
+                <!-- Search Bar -->
+                <div class="flex flex-col md:flex-row gap-3">
+                  <div class="flex-1">
+                    <UInput
+                      v-model="videoStatsSearch"
+                      icon="i-lucide-search"
+                      placeholder="Cari deskripsi, views, likes..."
+                      size="sm"
+                    />
+                  </div>
+                  <div class="flex gap-2">
+                    <UButton
+                      :color="showAdvancedFilters ? 'gray' : 'neutral'"
+                      :variant="showAdvancedFilters ? 'solid' : 'outline'"
+                      size="sm"
+                      icon="i-lucide-filter"
+                      @click="showAdvancedFilters = !showAdvancedFilters"
+                    >
+                      {{ showAdvancedFilters ? 'Sembunyikan' : 'Filter Lanjutan' }}
+                    </UButton>
+                    <UButton
+                      v-if="hasActiveVideoFilters"
+                      color="gray"
+                      variant="ghost"
+                      size="sm"
+                      icon="i-lucide-x"
+                      @click="clearVideoFilters"
+                    >
+                      Reset
+                    </UButton>
+                  </div>
                 </div>
-                <div class="flex gap-2">
-                  <UButton
-                    v-if="hasActiveVideoFilters"
-                    color="gray"
-                    variant="ghost"
-                    size="sm"
-                    icon="i-lucide-x"
-                    @click="clearVideoFilters"
-                  >
-                    Reset Filter
-                  </UButton>
-                </div>
-              </div>
 
-              <!-- Advanced Filters -->
-              <UAccordion 
-                :items="[{ 
-                  label: 'Filter Lanjutan', 
-                  icon: 'i-lucide-filter',
-                  defaultOpen: false
-                }]"
-              >
-                <template #default>
+                <!-- Advanced Filters (Collapsible) -->
+                <div v-show="showAdvancedFilters" class="border border-gray-200 dark:border-gray-800 rounded-lg">
                   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                     <!-- Views Range -->
                     <div>
@@ -986,9 +990,8 @@ onMounted(() => {
                       </div>
                     </div>
                   </div>
-                </template>
-              </UAccordion>
-            </div>
+                </div>
+              </div>
 
             <!-- Table -->
             <div class="overflow-x-auto">
