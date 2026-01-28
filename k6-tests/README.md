@@ -93,10 +93,38 @@ VALUES ('store_user', '<bcrypt_hash>', 'Store User', 'store@example.com', 3);
 Or use the seed script:
 ```bash
 cd backend
-npm run db:seed
+npm run db:seed-test
 ```
 
-### 3. Run Tests
+### 3. Configure Rate Limiting for Testing
+
+**IMPORTANT:** Before running K6 tests, you must enable testing mode to increase rate limits, otherwise tests will fail with 429 errors.
+
+**Enable Testing Mode:**
+```bash
+cd backend
+# Add to your .env file
+echo "TESTING_MODE=true" >> .env
+
+# Restart backend server
+npm run dev
+```
+
+**What Testing Mode Does:**
+- Increases rate limits by 10x to allow load testing
+- Admin endpoints: 100 → 1000 requests/minute
+- OAuth/Auth endpoints: 10 → 100 requests/minute
+- Strict endpoints: 5 → 50 requests/minute
+
+**Verify Testing Mode is Active:**
+When you start the backend, you should see:
+```
+🧪 TESTING MODE ENABLED - Rate limits increased by 10x
+```
+
+**⚠️ Production Warning:** Always set `TESTING_MODE=false` in production environments!
+
+### 4. Run Tests
 
 **Interactive Menu:**
 ```bash
@@ -372,6 +400,36 @@ Solutions:
 - Increase database connection pool
 - Check application logs
 - Optimize slow queries
+
+### "Rate limit exceeded (429 errors)"
+**This is the most common issue when running K6 tests!**
+
+Symptoms:
+- Tests fail with HTTP 429 (Too Many Requests)
+- Error rate suddenly jumps to 100%
+- Response headers show `X-RateLimit-Remaining: 0`
+
+**Solution:**
+```bash
+# 1. Enable testing mode in backend/.env
+echo "TESTING_MODE=true" >> backend/.env
+
+# 2. Restart backend server
+cd backend && npm run dev
+
+# 3. Verify testing mode is active (look for this log):
+# 🧪 TESTING MODE ENABLED - Rate limits increased by 10x
+
+# 4. Run K6 tests again
+cd ../k6-tests && ./run-tests.sh
+```
+
+**Testing Mode Rate Limits:**
+- Admin: 1000 req/min (vs 100 in production)
+- Auth: 100 req/min (vs 10 in production)
+- Strict: 50 req/min (vs 5 in production)
+
+**Note:** Always disable testing mode in production by setting `TESTING_MODE=false`
 
 ### "Memory leak detected"
 Signs:

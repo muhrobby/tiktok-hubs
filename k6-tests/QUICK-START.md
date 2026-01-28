@@ -102,7 +102,28 @@ node -e "const bcrypt = require('bcrypt'); bcrypt.hash('admin123', 10).then(h =>
 
 ---
 
-## ✅ STEP 3: Start Backend Server (1 menit)
+## ✅ STEP 3: Enable Testing Mode (IMPORTANT!) ⚠️
+
+**Before running K6 tests, you MUST enable testing mode to avoid rate limiting!**
+
+```bash
+cd /media/muhrobby/DataExternal/Project/tiktok-hubs/backend
+
+# Add testing mode to .env
+echo "TESTING_MODE=true" >> .env
+```
+
+**What this does:**
+- Increases rate limits by 10x to allow load testing
+- Admin endpoints: 100 → 1000 req/min
+- Auth endpoints: 10 → 100 req/min
+- Strict endpoints: 5 → 50 req/min
+
+**⚠️ Critical:** Without testing mode, K6 tests will fail with 429 (Rate Limit Exceeded) errors!
+
+---
+
+## ✅ STEP 4: Start Backend Server (1 menit)
 
 ```bash
 cd /media/muhrobby/DataExternal/Project/tiktok-hubs/backend
@@ -112,8 +133,11 @@ npm run dev
 **Expected output:**
 ```
 {"level":"info","msg":"🚀 Server started successfully"}
+{"level":"warn","msg":"🧪 TESTING MODE ENABLED - Rate limits increased by 10x"}
 {"level":"info","msg":"Health check: http://0.0.0.0:3000/health"}
 ```
+
+**✅ Verify you see the "TESTING MODE ENABLED" message!**
 
 **Verify server is running:**
 ```bash
@@ -127,7 +151,7 @@ Should return:
 
 ---
 
-## ✅ STEP 4: Verify Test Users (1 menit)
+## ✅ STEP 5: Verify Test Users (1 menit)
 
 Test login dengan curl:
 
@@ -158,7 +182,7 @@ curl -X POST http://localhost:3000/user-auth/login \
 
 ---
 
-## ✅ STEP 5: Run Your First Test (1 menit)
+## ✅ STEP 6: Run Your First Test (1 menit)
 
 ```bash
 cd /media/muhrobby/DataExternal/Project/tiktok-hubs/k6-tests
@@ -294,6 +318,33 @@ npx dotenv-cli -e .env npx tsx src/scripts/generate-test-analytics.ts
 # Change VUs from 10 to 5
 ```
 
+### Problem: "Rate limit exceeded (429 errors)" ⚠️
+
+**This is the most common issue!**
+
+**Symptoms:**
+- Tests fail with `http_req_failed: 100%`
+- Errors: "429 Too Many Requests"
+- Response time is very fast but all requests fail
+
+**Solution:**
+```bash
+# 1. Enable testing mode
+cd backend
+echo "TESTING_MODE=true" >> .env
+
+# 2. Restart backend
+npm run dev
+
+# 3. Verify you see this log:
+# 🧪 TESTING MODE ENABLED - Rate limits increased by 10x
+
+# 4. Run tests again
+cd ../k6-tests && ./run-tests.sh
+```
+
+**⚠️ Remember:** Always set `TESTING_MODE=false` in production!
+
 ---
 
 ## 📝 Checklist
@@ -302,7 +353,9 @@ Before running tests, verify:
 
 - [ ] ✅ K6 installed (`k6 version` works)
 - [ ] ✅ Test users created (`npm run db:seed-test`)
+- [ ] ✅ **TESTING_MODE=true** in backend/.env ⚠️
 - [ ] ✅ Backend running (`curl localhost:3000/health`)
+- [ ] ✅ Testing mode log visible ("🧪 TESTING MODE ENABLED")
 - [ ] ✅ Login works (test with curl)
 - [ ] ✅ Database has data (run analytics test data script)
 
@@ -324,10 +377,11 @@ Full documentation available in:
 |------|------|--------|
 | Install K6 | 5 min | ⏳ |
 | Create test users | 2 min | ⏳ |
+| Enable testing mode | 1 min | ⏳ |
 | Start backend | 1 min | ⏳ |
 | Verify users | 1 min | ⏳ |
 | Run first test | 1 min | ⏳ |
-| **Total** | **10 min** | |
+| **Total** | **11 min** | |
 
 ---
 
@@ -339,6 +393,9 @@ sudo apt-get update && sudo apt-get install k6
 
 # Create test users
 cd backend && npm run db:seed-test
+
+# Enable testing mode (IMPORTANT!)
+echo "TESTING_MODE=true" >> backend/.env
 
 # Start backend
 cd backend && npm run dev
