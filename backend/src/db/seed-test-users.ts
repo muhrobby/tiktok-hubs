@@ -14,7 +14,7 @@ dotenv.config();
 
 import bcrypt from "bcrypt";
 import { db } from "./client.js";
-import { users, roles, userRoles, stores, userStores } from "./schema.js";
+import { users, roles, userRoles, stores } from "./schema.js";
 import { logger } from "../utils/logger.js";
 import { closeDb } from "./client.js";
 import { eq, and } from "drizzle-orm";
@@ -131,6 +131,9 @@ async function seedTestUsers() {
         // Assign role
         const role = existingRoles.find((r) => r.name === testUser.roleName);
         if (role) {
+          // Determine store code for role assignment
+          const storeCodeForRole = testUser.storeAccess !== "all" ? testUser.storeAccess : null;
+          
           // Check if role assignment already exists
           const existingRoleAssignment = await db
             .select()
@@ -138,7 +141,10 @@ async function seedTestUsers() {
             .where(
               and(
                 eq(userRoles.userId, newUser.id),
-                eq(userRoles.roleId, role.id)
+                eq(userRoles.roleId, role.id),
+                storeCodeForRole 
+                  ? eq(userRoles.storeCode, storeCodeForRole)
+                  : eq(userRoles.storeCode, null)
               )
             )
             .limit(1);
@@ -147,44 +153,17 @@ async function seedTestUsers() {
             await db.insert(userRoles).values({
               userId: newUser.id,
               roleId: role.id,
+              storeCode: storeCodeForRole,
             });
-            logger.info(`  ✓ Assigned role: ${testUser.roleName}`);
-          }
-        } else {
-          logger.warn(`  ⚠ Role '${testUser.roleName}' not found`);
-        }
-
-        // Assign store access (for Store users)
-        if (testUser.storeAccess !== "all") {
-          const store = await db
-            .select()
-            .from(stores)
-            .where(eq(stores.storeCode, testUser.storeAccess))
-            .limit(1);
-
-          if (store.length > 0) {
-            // Check if store assignment already exists
-            const existingStoreAssignment = await db
-              .select()
-              .from(userStores)
-              .where(
-                and(
-                  eq(userStores.userId, newUser.id),
-                  eq(userStores.storeCode, testUser.storeAccess)
-                )
-              )
-              .limit(1);
-
-            if (existingStoreAssignment.length === 0) {
-              await db.insert(userStores).values({
-                userId: newUser.id,
-                storeCode: testUser.storeAccess,
-              });
-              logger.info(`  ✓ Granted access to store: ${testUser.storeAccess}`);
+            
+            if (storeCodeForRole) {
+              logger.info(`  ✓ Assigned role: ${testUser.roleName} with access to ${storeCodeForRole}`);
+            } else {
+              logger.info(`  ✓ Assigned role: ${testUser.roleName} (all stores access)`);
             }
           }
         } else {
-          logger.info(`  ✓ User has access to all stores (${testUser.roleName} role)`);
+          logger.warn(`  ⚠ Role '${testUser.roleName}' not found`);
         }
       }
     }
