@@ -1,13 +1,17 @@
 /**
- * Rate Limiter Middleware
+ * Rate Limiter Middleware - TESTING MODE
  *
- * Implements sliding window rate limiting with per-IP tracking
- * and special handling for authentication endpoints
+ * Modified version with relaxed rate limits for load testing
+ * Set TESTING_MODE=true in .env to enable
  */
 
 import type { Context, Next } from "hono";
 import { errorResponse } from "../utils/http.js";
 import { logger } from "../utils/logger.js";
+
+// Check if in testing mode
+const TESTING_MODE = process.env.TESTING_MODE === "true";
+const DISABLE_RATE_LIMIT = process.env.DISABLE_RATE_LIMIT === "true";
 
 // ============================================
 // TYPES
@@ -100,13 +104,28 @@ function defaultKeyGenerator(c: Context): string {
  * General purpose rate limiter middleware
  */
 export function rateLimiter(options: RateLimitOptions) {
+  // If rate limiting is disabled, bypass
+  if (DISABLE_RATE_LIMIT) {
+    logger.warn("⚠️  Rate limiting is DISABLED - only use in testing!");
+    return async (c: Context, next: Next) => {
+      await next();
+    };
+  }
+
   const {
     windowMs,
-    limit,
+    limit: originalLimit,
     keyGenerator = defaultKeyGenerator,
     skipFailedRequests = false,
     onLimitReached,
   } = options;
+
+  // Increase limits in testing mode
+  const limit = TESTING_MODE ? originalLimit * 10 : originalLimit;
+
+  if (TESTING_MODE && originalLimit !== limit) {
+    logger.info(`🧪 Testing mode: Rate limit increased from ${originalLimit} to ${limit}`);
+  }
 
   return async (c: Context, next: Next) => {
     const key = keyGenerator(c);
@@ -139,6 +158,7 @@ export function rateLimiter(options: RateLimitOptions) {
           path: c.req.path,
           limit,
           retryAfter,
+          testingMode: TESTING_MODE,
         },
         "Rate limit exceeded"
       );
@@ -181,11 +201,21 @@ export function rateLimiter(options: RateLimitOptions) {
  * Tracks failed authentication attempts and blocks after threshold
  */
 export function authRateLimiter(options: AuthRateLimitOptions) {
+  // If rate limiting is disabled, bypass
+  if (DISABLE_RATE_LIMIT) {
+    return async (c: Context, next: Next) => {
+      await next();
+    };
+  }
+
   const {
-    maxAttempts,
+    maxAttempts: originalMaxAttempts,
     windowMs,
     blockDurationMs = windowMs * 2, // Default: 2x window for block duration
   } = options;
+
+  // Increase limits in testing mode
+  const maxAttempts = TESTING_MODE ? originalMaxAttempts * 10 : originalMaxAttempts;
 
   return async (c: Context, next: Next) => {
     const clientIp = getClientIp(c);
@@ -269,9 +299,12 @@ export function authRateLimiter(options: AuthRateLimitOptions) {
  * Rate limiter for admin API endpoints
  */
 export function adminRateLimiter() {
+  const baseLimit = 100;
+  const limit = TESTING_MODE ? baseLimit * 10 : baseLimit; // 1000 in testing mode
+
   return rateLimiter({
     windowMs: 60 * 1000, // 1 minute
-    limit: 100, // 100 requests per minute
+    limit: limit,
     keyGenerator: (c) => {
       // Use API key if available, otherwise IP
       const apiKey = c.req.header("X-API-KEY");
@@ -288,9 +321,12 @@ export function adminRateLimiter() {
  * Rate limiter for OAuth endpoints
  */
 export function oauthRateLimiter() {
+  const baseLimit = 10;
+  const limit = TESTING_MODE ? baseLimit * 10 : baseLimit; // 100 in testing mode
+
   return rateLimiter({
     windowMs: 60 * 1000, // 1 minute
-    limit: 10, // 10 requests per minute (OAuth shouldn't be spammed)
+    limit: limit,
     keyGenerator: (c) => `oauth:${getClientIp(c)}`,
     onLimitReached: (c, key) => {
       logger.warn(
@@ -298,6 +334,7 @@ export function oauthRateLimiter() {
           key,
           ip: getClientIp(c),
           path: c.req.path,
+          testingMode: TESTING_MODE,
         },
         "OAuth rate limit reached - potential abuse"
       );
@@ -309,9 +346,12 @@ export function oauthRateLimiter() {
  * Strict rate limiter for sensitive operations
  */
 export function strictRateLimiter() {
+  const baseLimit = 5;
+  const limit = TESTING_MODE ? baseLimit * 10 : baseLimit; // 50 in testing mode
+
   return rateLimiter({
     windowMs: 60 * 1000, // 1 minute
-    limit: 5, // Only 5 requests per minute
+    limit: limit,
     keyGenerator: (c) => `strict:${getClientIp(c)}:${c.req.path}`,
   });
 }
@@ -340,4 +380,17 @@ export function getRateLimitEntry(key: string): RateLimitEntry | undefined {
  */
 export function getAuthRateLimitEntry(key: string): RateLimitEntry | undefined {
   return authRateLimitStore.get(key);
+}
+
+// Log testing mode status on startup
+if (TESTING_MODE) {
+  logger.warn("🧪 TESTING MODE ENABLED - Rate limits increased by 10x");
+  logger.warn("   - Admin: 100 → 1000 req/min");
+  logger.warn("   - OAuth/Auth: 10 → 100 req/min");
+  logger.warn("   - Strict: 5 → 50 req/min");
+}
+
+if (DISABLE_RATE_LIMIT) {
+  logger.error("⚠️  RATE LIMITING COMPLETELY DISABLED!");
+  logger.error("   THIS SHOULD ONLY BE USED IN DEVELOPMENT/TESTING");
 }
