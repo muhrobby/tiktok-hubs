@@ -217,21 +217,21 @@ export const useAuditLogs = () => {
   };
 
   /**
-   * Format action for display
+   * Format action for display with black & white elegant theme
    */
   const formatAction = (action: AuditAction): { label: string; color: string } => {
     const actionMap: Record<AuditAction, { label: string; color: string }> = {
-      CREATE: { label: "Create", color: "green" },
-      READ: { label: "Read", color: "blue" },
-      UPDATE: { label: "Update", color: "amber" },
-      DELETE: { label: "Delete", color: "red" },
-      LOGIN: { label: "Login", color: "primary" },
-      LOGOUT: { label: "Logout", color: "gray" },
-      EXPORT: { label: "Export", color: "purple" },
-      IMPORT: { label: "Import", color: "cyan" },
-      SYNC: { label: "Sync", color: "teal" },
+      CREATE: { label: "Create", color: "gray" },
+      READ: { label: "Read", color: "neutral" },
+      UPDATE: { label: "Update", color: "gray" },
+      DELETE: { label: "Delete", color: "gray" },
+      LOGIN: { label: "Login", color: "gray" },
+      LOGOUT: { label: "Logout", color: "neutral" },
+      EXPORT: { label: "Export", color: "gray" },
+      IMPORT: { label: "Import", color: "gray" },
+      SYNC: { label: "Sync", color: "neutral" },
     };
-    return actionMap[action] || { label: action, color: "gray" };
+    return actionMap[action] || { label: action, color: "neutral" };
   };
 
   /**
