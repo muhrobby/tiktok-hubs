@@ -14,7 +14,7 @@ defineProps<{
       <UIcon name="i-lucide-store" class="size-5" />
     </div>
     <div v-if="!collapsed" class="flex flex-col">
-      <span class="text-sm font-semibold">TikTok Hubs</span>
+      <span class="text-sm font-semibold">Sosmed HUB</span>
       <span class="text-xs text-muted-foreground">Store Management</span>
     </div>
   </NuxtLink>

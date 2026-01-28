@@ -9,7 +9,7 @@ definePageMeta({
 });
 
 useHead({
-  title: "Analytics - TikTok Hubs",
+  title: "Analytics - Sosmed HUB",
 });
 
 const { 

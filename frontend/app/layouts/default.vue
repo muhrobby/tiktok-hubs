@@ -20,7 +20,7 @@ const links = computed<NavigationMenuItem[][]>(() => {
       },
     },
     {
-      label: "TikTok Store Accounts",
+      label: "Store Accounts",
       icon: "i-lucide-store",
       to: "/tiktok-store-accounts",
       onSelect: () => {

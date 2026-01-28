@@ -16,8 +16,8 @@ useHead({
     // Security & Anti-Phishing Meta Tags
     { name: "robots", content: "index, follow" },
     { name: "googlebot", content: "index, follow" },
-    { name: "author", content: "TikTok Hubs Team" },
-    { name: "publisher", content: "TikTok Hubs" },
+    { name: "author", content: "Sosmed HUB Team" },
+    { name: "publisher", content: "Sosmed HUB" },
     { name: "content-language", content: "en" },
     { name: "revisit-after", content: "7 days" },
     { name: "rating", content: "general" },
@@ -38,9 +38,9 @@ useHead({
   },
 });
 
-const title = "TikTok Hubs - Manage Your TikTok Stores";
+const title = "Sosmed HUB - Social Media Management Platform";
 const description =
-  "Official TikTok Hubs platform - Centralized management system for TikTok stores. Track analytics, sync data, and monitor performance across all your TikTok Shop accounts. Legitimate business tool for TikTok Shop sellers.";
+  "Sosmed HUB - Professional social media management platform for businesses. Centralized dashboard to manage multiple social media accounts, track analytics, and monitor performance. Streamline your social media operations.";
 
 useSeoMeta({
   title,
@@ -49,7 +49,7 @@ useSeoMeta({
   ogDescription: description,
   ogType: "website",
   ogUrl: siteUrl,
-  ogSiteName: "TikTok Hubs",
+  ogSiteName: "Sosmed HUB",
   twitterCard: "summary_large_image",
   twitterTitle: title,
   twitterDescription: description,

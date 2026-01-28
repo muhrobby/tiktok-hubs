@@ -9,7 +9,7 @@ definePageMeta({
 });
 
 useHead({
-  title: "TikTok Store Accounts - TikTok Hubs",
+  title: "Store Accounts - Sosmed HUB",
 });
 
 const UBadge = resolveComponent("UBadge");
@@ -459,7 +459,7 @@ const columns: TableColumn<StoreAccountRow>[] = [
   },
   {
     accessorKey: "displayName",
-    header: "TikTok Username",
+    header: "Platform Username",
     cell: ({ row }) =>
       row.original.displayName
         ? h("span", { class: "font-medium" }, `@${row.original.displayName}`)
@@ -604,7 +604,7 @@ onMounted(() => {
     <!-- Header -->
     <PageHeader
       title="TikTok Store Accounts"
-      description="Kelola toko, koneksi TikTok, dan lihat performa akun"
+      description="Kelola toko, koneksi platform, dan lihat performa akun"
     >
       <template #actions>
         <UButton

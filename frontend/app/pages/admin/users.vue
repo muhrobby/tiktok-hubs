@@ -9,7 +9,7 @@ definePageMeta({
 });
 
 useHead({
-  title: "User Management - TikTok Hubs",
+  title: "User Management - Sosmed HUB",
 });
 
 const UBadge = resolveComponent("UBadge");

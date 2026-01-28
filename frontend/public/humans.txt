@@ -12,25 +12,25 @@ Software: Visual Studio Code, Node.js
 Backend: Hono, PostgreSQL, Drizzle ORM
 
 /* PURPOSE */
-This is a legitimate business management platform for TikTok Shop sellers.
-TikTok Hubs helps store owners manage multiple shops, track analytics,
-and synchronize data from TikTok's official API.
+This is a legitimate social media management platform for businesses.
+Sosmed HUB helps users manage multiple social media accounts, track analytics,
+and synchronize data from platform APIs.
 
 /* LEGITIMACY */
 This is NOT a phishing site.
-This is NOT affiliated with TikTok/ByteDance (except as API consumer).
-This is a third-party business tool for TikTok Shop sellers.
+This is NOT affiliated with any major social media platform.
+This is a third-party business management tool.
 
-Official Repository: https://github.com/muhrobby/tiktok-hubs
+Official Repository: https://github.com/muhrobby/sosmed-hub
 Documentation: See README.md in repository
 
 /* THANKS */
-Thanks to TikTok for their API
-Thanks to the open-source community
-Thanks to all contributors
+Thanks to all open-source contributors
+Thanks to the Nuxt and Vue communities
+Thanks to everyone supporting this project
 
 /* LAST UPDATE */
-Last update: 2026/01/25
+Last update: 2026/01/28
 Language: English / Indonesian
 Doctype: HTML5
 IDE: Visual Studio Code

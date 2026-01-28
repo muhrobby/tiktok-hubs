@@ -8,7 +8,7 @@ definePageMeta({
 });
 
 useHead({
-  title: "Data Management - TikTok Hubs",
+  title: "Data Management - Sosmed HUB",
 });
 
 const {

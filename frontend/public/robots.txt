@@ -1,5 +1,5 @@
-# TikTok Hubs - Legitimate Business Management Platform
-# This is an official business tool for TikTok Shop sellers
+# Sosmed HUB - Social Media Management Platform
+# Professional tool for managing multiple social media accounts
 
 User-agent: *
 Allow: /

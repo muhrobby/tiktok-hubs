@@ -8,7 +8,7 @@ definePageMeta({
 
 // Set page metadata
 useHead({
-  title: "Dashboard - TikTok Hubs",
+  title: "Dashboard - Sosmed HUB",
 });
 
 // Composables
@@ -93,7 +93,7 @@ const getStoreData = (store: Store) => {
     <!-- Header with Burger Menu -->
     <PageHeader 
       title="Dashboard" 
-      description="Selamat datang di TikTok Hubs - Kelola semua toko TikTok Anda"
+      description="Selamat datang di Sosmed HUB - Kelola semua akun sosial media Anda"
     >
       <template #actions>
         <UButton
@@ -149,7 +149,7 @@ const getStoreData = (store: Store) => {
             </p>
             <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
               <UIcon name="i-lucide-check-circle" class="w-3 h-3 flex-shrink-0" />
-              <span class="truncate">Akun TikTok aktif</span>
+              <span class="truncate">Akun aktif terkoneksi</span>
             </p>
           </div>
           <div class="p-3 sm:p-4 bg-success/10 rounded-xl flex-shrink-0">
@@ -193,7 +193,7 @@ const getStoreData = (store: Store) => {
             <UIcon name="i-lucide-store" class="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
           </div>
           <div class="flex-1 min-w-0">
-            <h3 class="font-semibold text-base sm:text-lg mb-1 truncate">Kelola TikTok Store</h3>
+            <h3 class="font-semibold text-base sm:text-lg mb-1 truncate">Kelola Store Accounts</h3>
             <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">
               Kelola toko, koneksi, dan lihat performa
             </p>

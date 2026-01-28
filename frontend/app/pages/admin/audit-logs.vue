@@ -10,7 +10,7 @@ definePageMeta({
 });
 
 useHead({
-  title: "Audit Logs - TikTok Hubs",
+  title: "Audit Logs - Sosmed HUB",
 });
 
 const UBadge = resolveComponent("UBadge");

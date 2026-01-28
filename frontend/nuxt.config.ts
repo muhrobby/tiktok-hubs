@@ -19,7 +19,7 @@ export default defineNuxtConfig({
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || "",
       apiUrl: process.env.NUXT_PUBLIC_API_URL || "",
       appUrl: process.env.NUXT_PUBLIC_APP_URL || "http://localhost:3002",
-      appName: process.env.NUXT_PUBLIC_APP_NAME || "TikTok Hubs",
+      appName: process.env.NUXT_PUBLIC_APP_NAME || "Sosmed HUB",
     },
   },
   routeRules: {

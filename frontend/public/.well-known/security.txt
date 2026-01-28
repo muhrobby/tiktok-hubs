@@ -1,6 +1,6 @@
 # Our security address
 Contact: mailto:security@tiktokhubs.humahub.my.id
-Contact: https://github.com/muhrobby/tiktok-hubs/security/advisories/new
+Contact: https://github.com/muhrobby/sosmed-hub/security/advisories/new
 
 # Our security disclosure policy
 Preferred-Languages: en, id
@@ -13,7 +13,7 @@ Canonical: https://tiktokhubs.humahub.my.id/.well-known/security.txt
 Policy: https://tiktokhubs.humahub.my.id/about
 
 # Expires in 1 year (update this date)
-Expires: 2027-01-25T00:00:00.000Z
+Expires: 2027-01-28T00:00:00.000Z
 
 # Signing (optional, add GPG key if available)
-# Encryption: https://your-domain.com/pgp-key.txt
+# Encryption: https://tiktokhubs.humahub.my.id/pgp-key.txt

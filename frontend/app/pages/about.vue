@@ -4,7 +4,7 @@ definePageMeta({
 });
 
 useHead({
-  title: "About & Disclaimer - TikTok Hubs",
+  title: "About & Disclaimer - Sosmed HUB",
 });
 </script>
 
@@ -13,7 +13,7 @@ useHead({
     <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-4">About TikTok Hubs</h1>
+        <h1 class="text-3xl font-bold mb-4">About Sosmed HUB</h1>
         <p class="text-lg text-gray-600 dark:text-gray-400">
           Official Information & Legitimacy Statement
         </p>
@@ -25,23 +25,23 @@ useHead({
           ⚠️ Important Notice
         </h2>
         <p class="text-blue-800 dark:text-blue-200">
-          <strong>This is NOT a phishing site.</strong> TikTok Hubs is a legitimate business management platform
-          designed for TikTok Shop sellers to manage their stores efficiently.
+          <strong>This is NOT a phishing site.</strong> Sosmed HUB is a legitimate business management platform
+          designed for social media professionals to manage their accounts efficiently.
         </p>
       </div>
 
-      <!-- What is TikTok Hubs -->
+      <!-- What is Sosmed HUB -->
       <section class="mb-8">
-        <h2 class="text-2xl font-bold mb-4">What is TikTok Hubs?</h2>
+        <h2 class="text-2xl font-bold mb-4">What is Sosmed HUB?</h2>
         <p class="text-gray-700 dark:text-gray-300 mb-4">
-          TikTok Hubs is a <strong>third-party business management platform</strong> that helps TikTok Shop sellers:
+          Sosmed HUB is a <strong>third-party social media management platform</strong> that helps businesses and social media managers:
         </p>
         <ul class="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300 ml-4">
-          <li>Manage multiple TikTok Shop accounts from one dashboard</li>
-          <li>Track analytics and performance metrics</li>
-          <li>Synchronize data from TikTok's official API</li>
-          <li>Monitor follower growth and engagement</li>
-          <li>Analyze video performance across stores</li>
+          <li>Manage multiple social media accounts from one centralized dashboard</li>
+          <li>Track analytics and performance metrics across platforms</li>
+          <li>Synchronize data from social media platform APIs</li>
+          <li>Monitor follower growth and audience engagement</li>
+          <li>Analyze content performance and trends</li>
         </ul>
       </section>
 
@@ -53,8 +53,8 @@ useHead({
           <div>
             <h3 class="font-semibold text-lg mb-2">✅ We ARE:</h3>
             <ul class="list-disc list-inside ml-4 space-y-1">
-              <li>A legitimate business tool for TikTok Shop sellers</li>
-              <li>Using TikTok's official API with proper authentication</li>
+              <li>A legitimate business tool for social media management</li>
+              <li>Using official platform APIs with proper authentication</li>
               <li>Open-source software (check our GitHub repository)</li>
               <li>Compliant with data protection regulations</li>
               <li>Transparent about our operations and purpose</li>
@@ -64,11 +64,11 @@ useHead({
           <div>
             <h3 class="font-semibold text-lg mb-2">❌ We are NOT:</h3>
             <ul class="list-disc list-inside ml-4 space-y-1">
-              <li>Affiliated with or endorsed by TikTok/ByteDance</li>
+              <li>Affiliated with or endorsed by any major social media platform</li>
               <li>A phishing site attempting to steal credentials</li>
               <li>Selling or sharing user data to third parties</li>
-              <li>An unofficial or unauthorized TikTok service</li>
-              <li>Attempting to impersonate TikTok's official platform</li>
+              <li>An unofficial or unauthorized service</li>
+              <li>Attempting to impersonate any official platform</li>
             </ul>
           </div>
         </div>
@@ -76,22 +76,22 @@ useHead({
 
       <!-- How It Works -->
       <section class="mb-8">
-        <h2 class="text-2xl font-bold mb-4">How TikTok Hubs Works</h2>
+        <h2 class="text-2xl font-bold mb-4">How Sosmed HUB Works</h2>
         <ol class="list-decimal list-inside space-y-3 text-gray-700 dark:text-gray-300 ml-4">
           <li>
-            <strong>OAuth Authentication:</strong> We use TikTok's official OAuth 2.0 protocol.
-            You authenticate directly with TikTok, not with us.
+            <strong>OAuth Authentication:</strong> We use official OAuth 2.0 protocol from social media platforms.
+            You authenticate directly with the platform, not with us.
           </li>
           <li>
-            <strong>API Access:</strong> After authentication, TikTok provides us with limited API access
-            to read your store analytics (we cannot modify your account).
+            <strong>API Access:</strong> After authentication, platforms provide us with limited API access
+            to read your account analytics (we cannot modify your account).
           </li>
           <li>
             <strong>Data Storage:</strong> We store analytics data locally to provide historical insights
-            and trend analysis. Your TikTok password is NEVER stored.
+            and trend analysis. Your platform passwords are NEVER stored.
           </li>
           <li>
-            <strong>Synchronization:</strong> We periodically sync data from TikTok's API to keep
+            <strong>Synchronization:</strong> We periodically sync data from platform APIs to keep
             your dashboard up-to-date.
           </li>
         </ol>
@@ -121,6 +121,22 @@ useHead({
         </p>
       </section>
 
+      <!-- Brand Disclaimer -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold mb-4">Brand & Trademark Notice</h2>
+        <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-6">
+          <p class="text-yellow-900 dark:text-yellow-100 mb-3">
+            <strong>Important:</strong> Sosmed HUB is an independent third-party service.
+          </p>
+          <ul class="space-y-2 text-yellow-800 dark:text-yellow-200 text-sm">
+            <li>• We are NOT affiliated with, endorsed by, or sponsored by any social media platform</li>
+            <li>• All trademarks and brand names mentioned belong to their respective owners</li>
+            <li>• We use platform APIs under their developer terms and conditions</li>
+            <li>• This is a business management tool, not an official platform service</li>
+          </ul>
+        </div>
+      </section>
+
       <!-- Contact & Verification -->
       <section class="mb-8">
         <h2 class="text-2xl font-bold mb-4">Contact & Verification</h2>
@@ -132,8 +148,8 @@ useHead({
               For questions or security concerns:
             </p>
             <p class="text-sm">
-              Email: <a href="mailto:security@tiktok-hubs.com" class="text-blue-600 hover:underline">
-                security@tiktok-hubs.com
+              Email: <a href="mailto:security@sosmedhub.com" class="text-blue-600 hover:underline">
+                security@sosmedhub.com
               </a>
             </p>
           </div>
@@ -145,12 +161,12 @@ useHead({
             </p>
             <p class="text-sm">
               GitHub: <a 
-                href="https://github.com/muhrobby/tiktok-hubs" 
+                href="https://github.com/muhrobby/sosmed-hub" 
                 target="_blank"
                 rel="noopener noreferrer"
                 class="text-blue-600 hover:underline"
               >
-                github.com/muhrobby/tiktok-hubs
+                github.com/muhrobby/sosmed-hub
               </a>
             </p>
           </div>
@@ -159,15 +175,15 @@ useHead({
 
       <!-- Disclaimer -->
       <section class="mb-8">
-        <h2 class="text-2xl font-bold mb-4">Disclaimer</h2>
+        <h2 class="text-2xl font-bold mb-4">Legal Disclaimer</h2>
         <div class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
           <p>
-            TikTok Hubs is an independent third-party application and is not affiliated with,
-            endorsed by, or sponsored by TikTok, ByteDance Ltd., or any of their affiliates.
+            Sosmed HUB is an independent third-party application and is not affiliated with,
+            endorsed by, or sponsored by any social media platform or their parent companies.
           </p>
           <p>
-            "TikTok" and the TikTok logo are trademarks of ByteDance Ltd. All other trademarks
-            are the property of their respective owners.
+            All social media platform names, logos, and trademarks are property of their respective owners.
+            Use of these names, logos, and brands does not imply endorsement.
           </p>
           <p>
             This service is provided "as is" without warranty of any kind. Use at your own risk.
@@ -183,13 +199,13 @@ useHead({
       <div class="border-t dark:border-gray-700 pt-6 mt-8">
         <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
           <p>
-            Last Updated: January 25, 2026
+            Last Updated: January 28, 2026
           </p>
           <div class="flex gap-4">
             <NuxtLink to="/" class="text-blue-600 hover:underline">
               Return to Dashboard
             </NuxtLink>
-            <a href="https://github.com/muhrobby/tiktok-hubs" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+            <a href="https://github.com/muhrobby/sosmed-hub" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
               View on GitHub
             </a>
           </div>
