@@ -268,18 +268,37 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
                 <h3 class="text-sm sm:text-base font-semibold">Followers Trend</h3>
               </template>
               
-              <div v-if="followersTrend.length > 0" class="h-48 sm:h-64">
-                <VisXYContainer :data="followersTrend" :margin="{ top: 10, right: 10, bottom: 30, left: 50 }">
-                  <VisArea :x="x" :y="followersY" color="var(--color-primary-500)" :opacity="0.2" />
-                  <VisLine :x="x" :y="followersY" color="var(--color-primary-500)" />
-                  <VisAxis type="x" :tickFormat="(d: Date) => d.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })" />
-                  <VisAxis type="y" :tickFormat="(d: number) => formatNumber(d)" />
-                </VisXYContainer>
+              <div v-if="followersTrend.length > 0" class="w-full" style="min-height: 400px;">
+                <ClientOnly fallback="<div class='h-96 flex items-center justify-center text-gray-500'>Loading chart...</div>">
+                  <VisXYContainer 
+                    :data="followersTrend" 
+                    :height="400"
+                    :margin="{ top: 20, right: 40, bottom: 50, left: 70 }"
+                    :duration="750"
+                  >
+                    <VisArea :x="x" :y="followersY" :color="'rgb(17, 24, 39)'" :opacity="0.1" />
+                    <VisLine :x="x" :y="followersY" :color="'rgb(17, 24, 39)'" :lineWidth="2.5" />
+                    <VisAxis 
+                      type="x" 
+                      :tickFormat="(d: Date) => d.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })"
+                      :gridLine="true"
+                    />
+                    <VisAxis 
+                      type="y" 
+                      :tickFormat="(d: number) => formatNumber(d)"
+                      :gridLine="true"
+                      label="Followers"
+                    />
+                    <VisTooltip />
+                    <VisBulletLegend :items="[{ name: 'Followers', color: 'rgb(17, 24, 39)' }]" />
+                  </VisXYContainer>
+                </ClientOnly>
               </div>
-              <div v-else class="h-64 flex flex-col items-center justify-center text-muted-foreground">
+              <div v-else class="h-96 flex flex-col items-center justify-center text-gray-500">
                 <UIcon name="i-lucide-bar-chart-3" class="w-12 h-12 mb-3" />
                 <p class="font-medium">No follower data available</p>
-                <p class="text-sm mt-1">Data will appear after running daily sync jobs</p>
+                <p class="text-sm mt-2">Generate test data:</p>
+                <code class="text-xs bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded mt-2">npx tsx src/scripts/generate-test-analytics.ts</code>
               </div>
             </UCard>
 
@@ -289,16 +308,37 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
                 <h3 class="text-sm sm:text-base font-semibold">Video Views Trend</h3>
               </template>
               
-              <div v-if="videoPerformance.length > 0" class="h-48 sm:h-64">
-                <VisXYContainer :data="videoPerformance" :margin="{ top: 10, right: 10, bottom: 30, left: 50 }">
-                  <VisArea :x="x" :y="viewsY" color="var(--color-info-500)" :opacity="0.2" />
-                  <VisLine :x="x" :y="viewsY" color="var(--color-info-500)" />
-                  <VisAxis type="x" :tickFormat="(d: Date) => d.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })" />
-                  <VisAxis type="y" :tickFormat="(d: number) => formatNumber(d)" />
-                </VisXYContainer>
+              <div v-if="videoPerformance.length > 0" class="w-full" style="min-height: 400px;">
+                <ClientOnly fallback="<div class='h-96 flex items-center justify-center text-gray-500'>Loading chart...</div>">
+                  <VisXYContainer 
+                    :data="videoPerformance" 
+                    :height="400"
+                    :margin="{ top: 20, right: 40, bottom: 50, left: 70 }"
+                    :duration="750"
+                  >
+                    <VisArea :x="x" :y="viewsY" :color="'rgb(17, 24, 39)'" :opacity="0.1" />
+                    <VisLine :x="x" :y="viewsY" :color="'rgb(17, 24, 39)'" :lineWidth="2.5" />
+                    <VisAxis 
+                      type="x" 
+                      :tickFormat="(d: Date) => d.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' })"
+                      :gridLine="true"
+                    />
+                    <VisAxis 
+                      type="y" 
+                      :tickFormat="(d: number) => formatNumber(d)"
+                      :gridLine="true"
+                      label="Views"
+                    />
+                    <VisTooltip />
+                    <VisBulletLegend :items="[{ name: 'Views', color: 'rgb(17, 24, 39)' }]" />
+                  </VisXYContainer>
+                </ClientOnly>
               </div>
-              <div v-else class="h-64 flex items-center justify-center text-dimmed">
-                <p>No data available</p>
+              <div v-else class="h-96 flex flex-col items-center justify-center text-gray-500">
+                <UIcon name="i-lucide-eye" class="w-12 h-12 mb-3" />
+                <p class="font-medium">No video views data available</p>
+                <p class="text-sm mt-2">Generate test data:</p>
+                <code class="text-xs bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded mt-2">npx tsx src/scripts/generate-test-analytics.ts</code>
               </div>
             </UCard>
           </div>
