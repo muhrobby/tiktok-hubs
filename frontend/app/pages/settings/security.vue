@@ -100,7 +100,8 @@ async function handleLogoutAllDevices() {
       <UButton 
         label="Update Password" 
         class="w-fit" 
-        type="submit" 
+        type="submit"
+        color="gray"
         :loading="isChangingPassword"
         :disabled="isChangingPassword"
       />
@@ -123,7 +124,7 @@ async function handleLogoutAllDevices() {
     <template #footer>
       <UButton
         label="Log out all devices"
-        color="warning"
+        color="neutral"
         variant="soft"
         icon="i-lucide-log-out"
         @click="handleLogoutAllDevices"
@@ -135,7 +136,7 @@ async function handleLogoutAllDevices() {
   <UPageCard
     title="Danger Zone"
     description="Irreversible actions for your account."
-    class="bg-gradient-to-tl from-error/10 from-5% to-default"
+    class="bg-gradient-to-tl from-gray-800/10 from-5% to-default dark:from-white/10"
   >
     <p class="text-sm text-dimmed">
       Account deletion is managed by administrators. Contact your admin if you need to delete your account.

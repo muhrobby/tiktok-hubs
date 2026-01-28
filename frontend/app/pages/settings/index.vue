@@ -59,14 +59,14 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
         title: 'Success',
         description: 'Profile updated successfully.',
         icon: 'i-lucide-check',
-        color: 'success'
+        color: 'gray'
       })
     } else {
       toast.add({
         title: 'Error',
         description: response.error?.message || 'Failed to update profile.',
         icon: 'i-lucide-alert-circle',
-        color: 'error'
+        color: 'gray'
       })
     }
   } catch (error: unknown) {
@@ -75,7 +75,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
       title: 'Error',
       description: err?.data?.error?.message || 'Failed to update profile.',
       icon: 'i-lucide-alert-circle',
-      color: 'error'
+      color: 'gray'
     })
   } finally {
     isSaving.value = false
