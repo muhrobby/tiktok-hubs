@@ -558,6 +558,62 @@ const hasActiveVideoFilters = computed(() => {
   );
 });
 
+// Watch for filter changes and reset to first page
+watch([videoStatsSearch, videoFilters], () => {
+  if (videoStatsTable.value?.tableApi) {
+    videoStatsTable.value.tableApi.setPageIndex(0);
+  }
+}, { deep: true });
+
+watch([userStatsSearch, userStatsFilters], () => {
+  if (userStatsTable.value?.tableApi) {
+    userStatsTable.value.tableApi.setPageIndex(0);
+  }
+}, { deep: true });
+
+watch(syncLogsSearch, () => {
+  if (syncLogsTable.value?.tableApi) {
+    syncLogsTable.value.tableApi.setPageIndex(0);
+  }
+});
+
+// Computed properties for pagination info (safer with null checks)
+const videoPageInfo = computed(() => {
+  if (!videoStatsTable.value?.tableApi) return { current: 0, total: 0, start: 0, end: 0 };
+  const state = videoStatsTable.value.tableApi.getState();
+  const pageIndex = state.pagination.pageIndex;
+  const pageSize = videoStatsPagination.value.pageSize;
+  const total = filteredVideoStats.value.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const start = pageIndex * pageSize + 1;
+  const end = Math.min((pageIndex + 1) * pageSize, total);
+  return { current: pageIndex + 1, total: totalPages, start, end, dataTotal: total };
+});
+
+const userPageInfo = computed(() => {
+  if (!userStatsTable.value?.tableApi) return { current: 0, total: 0, start: 0, end: 0 };
+  const state = userStatsTable.value.tableApi.getState();
+  const pageIndex = state.pagination.pageIndex;
+  const pageSize = userStatsPagination.value.pageSize;
+  const total = filteredUserStats.value.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const start = pageIndex * pageSize + 1;
+  const end = Math.min((pageIndex + 1) * pageSize, total);
+  return { current: pageIndex + 1, total: totalPages, start, end, dataTotal: total };
+});
+
+const syncPageInfo = computed(() => {
+  if (!syncLogsTable.value?.tableApi) return { current: 0, total: 0, start: 0, end: 0 };
+  const state = syncLogsTable.value.tableApi.getState();
+  const pageIndex = state.pagination.pageIndex;
+  const pageSize = syncLogsPagination.value.pageSize;
+  const total = filteredSyncLogs.value.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const start = pageIndex * pageSize + 1;
+  const end = Math.min((pageIndex + 1) * pageSize, total);
+  return { current: pageIndex + 1, total: totalPages, start, end, dataTotal: total };
+});
+
 onMounted(() => {
   loadData();
 });
@@ -710,9 +766,9 @@ onMounted(() => {
                 :columns="userStatColumns as any"
                 :loading="loading"
                 :state="{
-                  pagination: userStatsPagination ?? { pageIndex: 0, pageSize: 10 },
+                  pagination: userStatsPagination,
                 }"
-                :get-pagination-row-model="getPaginationRowModel()"
+                :get-pagination-row-model="getPaginationRowModel"
                 @update:pagination="(e) => { if (e) userStatsPagination = e }"
               />
             </div>
@@ -722,95 +778,36 @@ onMounted(() => {
               class="flex flex-col sm:flex-row items-center justify-between px-2 py-4 border-t gap-4"
             >
               <div class="text-sm text-muted-foreground">
-                Menampilkan
-                {{
-                  userStatsTable.tableApi.getState().pagination.pageIndex *
-                    userStatsPagination.pageSize +
-                  1
-                }}
-                -
-                {{
-                  Math.min(
-                    (userStatsTable.tableApi.getState().pagination.pageIndex + 1) *
-                      userStatsPagination.pageSize,
-                    filteredUserStats.length,
-                  )
-                }}
-                dari
-                {{ filteredUserStats.length }} data
+                Menampilkan {{ userPageInfo.start }} - {{ userPageInfo.end }} dari {{ userPageInfo.dataTotal }} data
               </div>
               <div class="flex items-center gap-2">
                 <UButton
-                  :disabled="
-                    userStatsTable.tableApi.getState().pagination.pageIndex === 0
-                  "
+                  :disabled="userPageInfo.current <= 1"
                   @click="userStatsTable.tableApi?.setPageIndex(0)"
                   variant="outline"
                   size="sm"
                   icon="i-lucide-chevrons-left"
                 />
                 <UButton
-                  :disabled="
-                    userStatsTable.tableApi.getState().pagination.pageIndex === 0
-                  "
-                  @click="
-                    userStatsTable.tableApi?.setPageIndex(
-                      userStatsTable.tableApi.getState().pagination.pageIndex - 1,
-                    )
-                  "
+                  :disabled="userPageInfo.current <= 1"
+                  @click="userStatsTable.tableApi?.setPageIndex(userPageInfo.current - 2)"
                   variant="outline"
                   size="sm"
                   icon="i-lucide-chevron-left"
                 />
                 <span class="text-sm px-2">
-                  Halaman
-                  {{ userStatsTable.tableApi.getState().pagination.pageIndex + 1 }}
-                  dari
-                  {{
-                    Math.max(
-                      1,
-                      Math.ceil(
-                        filteredUserStats.length / userStatsPagination.pageSize,
-                      ),
-                    )
-                  }}
+                  Halaman {{ userPageInfo.current }} dari {{ userPageInfo.total }}
                 </span>
                 <UButton
-                  :disabled="
-                    userStatsTable.tableApi.getState().pagination.pageIndex >=
-                    Math.ceil(
-                      filteredUserStats.length / userStatsPagination.pageSize,
-                    ) -
-                      1
-                  "
-                  @click="
-                    userStatsTable.tableApi?.setPageIndex(
-                      userStatsTable.tableApi.getState().pagination.pageIndex + 1,
-                    )
-                  "
+                  :disabled="userPageInfo.current >= userPageInfo.total"
+                  @click="userStatsTable.tableApi?.setPageIndex(userPageInfo.current)"
                   variant="outline"
                   size="sm"
                   icon="i-lucide-chevron-right"
                 />
                 <UButton
-                  :disabled="
-                    userStatsTable.tableApi.getState().pagination.pageIndex >=
-                    Math.ceil(
-                      userStatsTable.tableApi.getFilteredRowModel().rows.length /
-                        userStatsPagination.pageSize,
-                    ) -
-                      1
-                  "
-                  @click="
-                    userStatsTable.tableApi?.setPageIndex(
-                      Math.max(
-                        0,
-                        Math.ceil(
-                          filteredUserStats.length / userStatsPagination.pageSize,
-                        ) - 1,
-                      ),
-                    )
-                  "
+                  :disabled="userPageInfo.current >= userPageInfo.total"
+                  @click="userStatsTable.tableApi?.setPageIndex(userPageInfo.total - 1)"
                   variant="outline"
                   size="sm"
                   icon="i-lucide-chevrons-right"
@@ -950,19 +947,16 @@ onMounted(() => {
                       <label class="text-xs font-medium text-gray-500 mb-1 block">
                         Urutkan Berdasarkan
                       </label>
-                      <USelectMenu
+                      <select
                         v-model="videoFilters.sortBy"
-                        :options="[
-                          { value: 'viewCount', label: 'Tayangan' },
-                          { value: 'likeCount', label: 'Suka' },
-                          { value: 'commentCount', label: 'Komentar' },
-                          { value: 'shareCount', label: 'Bagikan' },
-                          { value: 'createTime', label: 'Tanggal Posting' },
-                        ]"
-                        option-attribute="label"
-                        value-attribute="value"
-                        size="xs"
-                      />
+                        class="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                      >
+                        <option value="viewCount">Tayangan</option>
+                        <option value="likeCount">Suka</option>
+                        <option value="commentCount">Komentar</option>
+                        <option value="shareCount">Bagikan</option>
+                        <option value="createTime">Tanggal Posting</option>
+                      </select>
                     </div>
 
                     <!-- Sort Order -->
@@ -970,16 +964,13 @@ onMounted(() => {
                       <label class="text-xs font-medium text-gray-500 mb-1 block">
                         Urutan
                       </label>
-                      <USelectMenu
+                      <select
                         v-model="videoFilters.sortOrder"
-                        :options="[
-                          { value: 'desc', label: 'Tertinggi ke Terendah' },
-                          { value: 'asc', label: 'Terendah ke Tertinggi' },
-                        ]"
-                        option-attribute="label"
-                        value-attribute="value"
-                        size="xs"
-                      />
+                        class="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                      >
+                        <option value="desc">Tertinggi ke Terendah</option>
+                        <option value="asc">Terendah ke Tertinggi</option>
+                      </select>
                     </div>
 
                     <!-- Results Count -->
@@ -1001,9 +992,9 @@ onMounted(() => {
                 :columns="videoColumns as any"
                 :loading="loading"
                 :state="{
-                  pagination: videoStatsPagination ?? { pageIndex: 0, pageSize: 10 },
+                  pagination: videoStatsPagination,
                 }"
-                :get-pagination-row-model="getPaginationRowModel()"
+                :get-pagination-row-model="getPaginationRowModel"
                 @update:pagination="(e) => { if (e) videoStatsPagination = e }"
               />
             </div>
@@ -1014,115 +1005,53 @@ onMounted(() => {
               class="flex flex-col sm:flex-row items-center justify-between px-2 py-4 border-t gap-4"
             >
               <div class="text-sm text-muted-foreground">
-                Menampilkan
-                {{
-                  videoStatsTable.tableApi.getState().pagination.pageIndex *
-                    videoStatsPagination.pageSize +
-                  1
-                }}
-                -
-                {{
-                  Math.min(
-                    (videoStatsTable.tableApi.getState().pagination.pageIndex + 1) *
-                      videoStatsPagination.pageSize,
-                    filteredVideoStats.length,
-                  )
-                }}
-                dari
-                {{ filteredVideoStats.length }} video
+                Menampilkan {{ videoPageInfo.start }} - {{ videoPageInfo.end }} dari {{ videoPageInfo.dataTotal }} video
               </div>
               
               <!-- Page Size Selector -->
               <div class="flex items-center gap-2">
                 <span class="text-sm text-gray-500">Per halaman:</span>
-                <USelectMenu
-                  v-model="videoStatsPagination.pageSize"
-                  :options="[
-                    { value: 5, label: '5' },
-                    { value: 10, label: '10' },
-                    { value: 20, label: '20' },
-                    { value: 50, label: '50' },
-                  ]"
-                  option-attribute="label"
-                  value-attribute="value"
-                  size="xs"
-                  @update:model-value="videoStatsTable.tableApi?.setPageIndex(0)"
-                />
+                <select
+                  v-model.number="videoStatsPagination.pageSize"
+                  class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  @change="videoStatsTable?.tableApi?.setPageIndex(0)"
+                >
+                  <option :value="5">5</option>
+                  <option :value="10">10</option>
+                  <option :value="20">20</option>
+                  <option :value="50">50</option>
+                </select>
               </div>
 
               <!-- Pagination Controls -->
               <div class="flex items-center gap-2">
                 <UButton
-                  :disabled="
-                    videoStatsTable.tableApi.getState().pagination.pageIndex === 0
-                  "
+                  :disabled="videoPageInfo.current <= 1"
                   @click="videoStatsTable.tableApi?.setPageIndex(0)"
                   variant="outline"
                   size="sm"
                   icon="i-lucide-chevrons-left"
                 />
                 <UButton
-                  :disabled="
-                    videoStatsTable.tableApi.getState().pagination.pageIndex === 0
-                  "
-                  @click="
-                    videoStatsTable.tableApi?.setPageIndex(
-                      videoStatsTable.tableApi.getState().pagination.pageIndex - 1,
-                    )
-                  "
+                  :disabled="videoPageInfo.current <= 1"
+                  @click="videoStatsTable.tableApi?.setPageIndex(videoPageInfo.current - 2)"
                   variant="outline"
                   size="sm"
                   icon="i-lucide-chevron-left"
                 />
                 <span class="text-sm px-2">
-                  Halaman
-                  {{ videoStatsTable.tableApi.getState().pagination.pageIndex + 1 }}
-                  dari
-                  {{
-                    Math.max(
-                      1,
-                      Math.ceil(
-                        filteredVideoStats.length / videoStatsPagination.pageSize,
-                      ),
-                    )
-                  }}
+                  Halaman {{ videoPageInfo.current }} dari {{ videoPageInfo.total }}
                 </span>
                 <UButton
-                  :disabled="
-                    videoStatsTable.tableApi.getState().pagination.pageIndex >=
-                    Math.ceil(
-                      filteredVideoStats.length / videoStatsPagination.pageSize,
-                    ) -
-                      1
-                  "
-                  @click="
-                    videoStatsTable.tableApi?.setPageIndex(
-                      videoStatsTable.tableApi.getState().pagination.pageIndex + 1,
-                    )
-                  "
+                  :disabled="videoPageInfo.current >= videoPageInfo.total"
+                  @click="videoStatsTable.tableApi?.setPageIndex(videoPageInfo.current)"
                   variant="outline"
                   size="sm"
                   icon="i-lucide-chevron-right"
                 />
                 <UButton
-                  :disabled="
-                    videoStatsTable.tableApi.getState().pagination.pageIndex >=
-                    Math.ceil(
-                      videoStatsTable.tableApi.getFilteredRowModel().rows.length /
-                        videoStatsPagination.pageSize,
-                    ) -
-                      1
-                  "
-                  @click="
-                    videoStatsTable.tableApi?.setPageIndex(
-                      Math.max(
-                        0,
-                        Math.ceil(
-                          filteredVideoStats.length / videoStatsPagination.pageSize,
-                        ) - 1,
-                      ),
-                    )
-                  "
+                  :disabled="videoPageInfo.current >= videoPageInfo.total"
+                  @click="videoStatsTable.tableApi?.setPageIndex(videoPageInfo.total - 1)"
                   variant="outline"
                   size="sm"
                   icon="i-lucide-chevrons-right"
@@ -1170,9 +1099,9 @@ onMounted(() => {
               :columns="syncLogColumns as any"
               :loading="loading"
               :state="{
-                pagination: syncLogsPagination ?? { pageIndex: 0, pageSize: 10 },
+                pagination: syncLogsPagination,
               }"
-              :get-pagination-row-model="getPaginationRowModel()"
+              :get-pagination-row-model="getPaginationRowModel"
               @update:pagination="(e) => { if (e) syncLogsPagination = e }"
             />
           </div>
@@ -1182,95 +1111,36 @@ onMounted(() => {
             class="flex flex-col sm:flex-row items-center justify-between px-2 py-4 border-t gap-4"
           >
             <div class="text-sm text-muted-foreground">
-              Menampilkan
-              {{
-                syncLogsTable.tableApi.getState().pagination.pageIndex *
-                  syncLogsPagination.pageSize +
-                1
-              }}
-              -
-              {{
-                Math.min(
-                  (syncLogsTable.tableApi.getState().pagination.pageIndex + 1) *
-                    syncLogsPagination.pageSize,
-                  filteredSyncLogs.length,
-                )
-              }}
-              dari
-              {{ filteredSyncLogs.length }} log
+              Menampilkan {{ syncPageInfo.start }} - {{ syncPageInfo.end }} dari {{ syncPageInfo.dataTotal }} log
             </div>
             <div class="flex items-center gap-2">
               <UButton
-                :disabled="
-                  syncLogsTable.tableApi.getState().pagination.pageIndex === 0
-                "
+                :disabled="syncPageInfo.current <= 1"
                 @click="syncLogsTable.tableApi?.setPageIndex(0)"
                 variant="outline"
                 size="sm"
                 icon="i-lucide-chevrons-left"
               />
               <UButton
-                :disabled="
-                  syncLogsTable.tableApi.getState().pagination.pageIndex === 0
-                "
-                @click="
-                  syncLogsTable.tableApi?.setPageIndex(
-                    syncLogsTable.tableApi.getState().pagination.pageIndex - 1,
-                  )
-                "
+                :disabled="syncPageInfo.current <= 1"
+                @click="syncLogsTable.tableApi?.setPageIndex(syncPageInfo.current - 2)"
                 variant="outline"
                 size="sm"
                 icon="i-lucide-chevron-left"
               />
               <span class="text-sm px-2">
-                Halaman
-                {{ syncLogsTable.tableApi.getState().pagination.pageIndex + 1 }}
-                dari
-                {{
-                  Math.max(
-                    1,
-                    Math.ceil(
-                      filteredSyncLogs.length / syncLogsPagination.pageSize,
-                    ),
-                  )
-                }}
+                Halaman {{ syncPageInfo.current }} dari {{ syncPageInfo.total }}
               </span>
               <UButton
-                :disabled="
-                  syncLogsTable.tableApi.getState().pagination.pageIndex >=
-                  Math.ceil(
-                    filteredSyncLogs.length / syncLogsPagination.pageSize,
-                  ) -
-                    1
-                "
-                @click="
-                  syncLogsTable.tableApi?.setPageIndex(
-                    syncLogsTable.tableApi.getState().pagination.pageIndex + 1,
-                  )
-                "
+                :disabled="syncPageInfo.current >= syncPageInfo.total"
+                @click="syncLogsTable.tableApi?.setPageIndex(syncPageInfo.current)"
                 variant="outline"
                 size="sm"
                 icon="i-lucide-chevron-right"
               />
               <UButton
-                :disabled="
-                  syncLogsTable.tableApi.getState().pagination.pageIndex >=
-                  Math.ceil(
-                    syncLogsTable.tableApi.getFilteredRowModel().rows.length /
-                      syncLogsPagination.pageSize,
-                  ) -
-                    1
-                "
-                @click="
-                  syncLogsTable.tableApi?.setPageIndex(
-                    Math.max(
-                      0,
-                      Math.ceil(
-                        filteredSyncLogs.length / syncLogsPagination.pageSize,
-                      ) - 1,
-                    ),
-                  )
-                "
+                :disabled="syncPageInfo.current >= syncPageInfo.total"
+                @click="syncLogsTable.tableApi?.setPageIndex(syncPageInfo.total - 1)"
                 variant="outline"
                 size="sm"
                 icon="i-lucide-chevrons-right"
