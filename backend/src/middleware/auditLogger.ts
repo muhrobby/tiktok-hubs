@@ -3,7 +3,7 @@
  * Tracks all API operations for security and compliance
  */
 
-import { Context, Next } from "hono";
+import type { Context, Next } from "hono";
 import { db } from "../db/client.js";
 import { auditLogs } from "../db/schema.js";
 import { logger } from "../utils/logger.js";
