@@ -140,13 +140,13 @@ const engagementRate = computed(() => {
   return ((totalEngagement / totalViews) * 100).toFixed(2) + "%";
 });
 
-// Sync health color
+// Sync health color - black & white theme
 const getSyncHealthColor = (health: SyncHealth | null) => {
   if (!health) return "neutral";
   const { success, failed } = health.last24Hours;
-  if (failed > 0 && failed >= success) return "error";
-  if (failed > 0) return "warning";
-  return "success";
+  if (failed > 0 && failed >= success) return "gray";
+  if (failed > 0) return "neutral";
+  return "gray";
 };
 </script>
 
@@ -188,7 +188,7 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
     <div class="mt-4 sm:mt-6">
         <!-- Loading State -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-20">
-          <UIcon name="i-lucide-loader-2" class="animate-spin w-10 h-10 mb-4 text-primary" />
+          <UIcon name="i-lucide-loader-2" class="animate-spin w-10 h-10 mb-4 text-gray-900 dark:text-white" />
           <p class="text-dimmed">Loading analytics data...</p>
         </div>
 
@@ -205,8 +205,8 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
                     {{ overview?.stores.connected || 0 }} connected
                   </p>
                 </div>
-                <div class="p-2 sm:p-3 bg-primary/10 rounded-lg flex-shrink-0">
-                  <UIcon name="i-lucide-store" class="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                <div class="p-2 sm:p-3 bg-gray-900/10 dark:bg-white/10 rounded-lg flex-shrink-0">
+                  <UIcon name="i-lucide-store" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-900 dark:text-white" />
                 </div>
               </div>
             </UCard>
@@ -221,8 +221,8 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
                     Across all stores
                   </p>
                 </div>
-                <div class="p-2 sm:p-3 bg-success/10 rounded-lg flex-shrink-0">
-                  <UIcon name="i-lucide-users" class="w-5 h-5 sm:w-6 sm:h-6 text-success" />
+                <div class="p-2 sm:p-3 bg-gray-800/10 dark:bg-white/10 rounded-lg flex-shrink-0">
+                  <UIcon name="i-lucide-users" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-800 dark:text-white" />
                 </div>
               </div>
             </UCard>
@@ -237,8 +237,8 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
                     {{ formatNumber(overview?.videos.total || 0) }} videos
                   </p>
                 </div>
-                <div class="p-2 sm:p-3 bg-info/10 rounded-lg flex-shrink-0">
-                  <UIcon name="i-lucide-eye" class="w-5 h-5 sm:w-6 sm:h-6 text-info" />
+                <div class="p-2 sm:p-3 bg-gray-700/10 dark:bg-white/10 rounded-lg flex-shrink-0">
+                  <UIcon name="i-lucide-eye" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-white" />
                 </div>
               </div>
             </UCard>
@@ -253,8 +253,8 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
                     {{ formatNumber(overview?.videos.totalLikes || 0) }} likes
                   </p>
                 </div>
-                <div class="p-2 sm:p-3 bg-warning/10 rounded-lg flex-shrink-0">
-                  <UIcon name="i-lucide-heart" class="w-5 h-5 sm:w-6 sm:h-6 text-warning" />
+                <div class="p-2 sm:p-3 bg-gray-600/10 dark:bg-white/10 rounded-lg flex-shrink-0">
+                  <UIcon name="i-lucide-heart" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 dark:text-white" />
                 </div>
               </div>
             </UCard>
@@ -378,7 +378,7 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
                   <div class="flex-1 min-w-0">
                     <NuxtLink 
                       :to="`/stores/${store.storeCode}`"
-                      class="text-sm sm:text-base font-medium hover:text-primary truncate block"
+                      class="text-sm sm:text-base font-medium hover:text-gray-900 dark:hover:text-white truncate block"
                     >
                       {{ store.storeName }}
                     </NuxtLink>
@@ -411,12 +411,12 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
               
               <div v-if="syncHealth" class="space-y-3 sm:space-y-4">
                 <div class="grid grid-cols-2 gap-3 sm:gap-4">
-                  <div class="text-center p-2 sm:p-3 bg-success/10 rounded-lg">
-                    <p class="text-xl sm:text-2xl font-bold text-success">{{ syncHealth.last24Hours.success }}</p>
+                  <div class="text-center p-2 sm:p-3 bg-gray-800/10 dark:bg-gray-700/10 rounded-lg">
+                    <p class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{ syncHealth.last24Hours.success }}</p>
                     <p class="text-xs text-dimmed">Successful</p>
                   </div>
-                  <div class="text-center p-2 sm:p-3 bg-error/10 rounded-lg">
-                    <p class="text-xl sm:text-2xl font-bold text-error">{{ syncHealth.last24Hours.failed }}</p>
+                  <div class="text-center p-2 sm:p-3 bg-gray-600/10 dark:bg-gray-500/10 rounded-lg">
+                    <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-300">{{ syncHealth.last24Hours.failed }}</p>
                     <p class="text-xs text-dimmed">Failed</p>
                   </div>
                 </div>
@@ -427,7 +427,7 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
                   <div class="flex items-center justify-between text-xs sm:text-sm">
                     <span class="text-dimmed">Need Reconnect</span>
                     <UBadge 
-                      :color="syncHealth.accountStatus.needReconnect > 0 ? 'warning' : 'success'" 
+                      :color="syncHealth.accountStatus.needReconnect > 0 ? 'gray' : 'neutral'" 
                       variant="subtle"
                       size="xs"
                     >
@@ -437,7 +437,7 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
                   <div class="flex items-center justify-between text-xs sm:text-sm">
                     <span class="text-dimmed">Has Errors</span>
                     <UBadge 
-                      :color="syncHealth.accountStatus.hasError > 0 ? 'error' : 'success'" 
+                      :color="syncHealth.accountStatus.hasError > 0 ? 'gray' : 'neutral'" 
                       variant="subtle"
                       size="xs"
                     >
@@ -478,22 +478,22 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
             
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <div class="text-center p-3 sm:p-4 bg-default/50 rounded-lg">
-                <UIcon name="i-lucide-eye" class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-info" />
+                <UIcon name="i-lucide-eye" class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-gray-700 dark:text-gray-300" />
                 <p class="text-lg sm:text-2xl font-bold">{{ formatNumber(overview?.videos.totalViews || 0) }}</p>
                 <p class="text-xs sm:text-sm text-dimmed">Total Views</p>
               </div>
               <div class="text-center p-3 sm:p-4 bg-default/50 rounded-lg">
-                <UIcon name="i-lucide-heart" class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-error" />
+                <UIcon name="i-lucide-heart" class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-gray-800 dark:text-gray-200" />
                 <p class="text-lg sm:text-2xl font-bold">{{ formatNumber(overview?.videos.totalLikes || 0) }}</p>
                 <p class="text-xs sm:text-sm text-dimmed">Total Likes</p>
               </div>
               <div class="text-center p-3 sm:p-4 bg-default/50 rounded-lg">
-                <UIcon name="i-lucide-message-circle" class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-primary" />
+                <UIcon name="i-lucide-message-circle" class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-gray-900 dark:text-white" />
                 <p class="text-lg sm:text-2xl font-bold">{{ formatNumber(overview?.videos.totalComments || 0) }}</p>
                 <p class="text-xs sm:text-sm text-dimmed">Total Comments</p>
               </div>
               <div class="text-center p-3 sm:p-4 bg-default/50 rounded-lg">
-                <UIcon name="i-lucide-share-2" class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-success" />
+                <UIcon name="i-lucide-share-2" class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-gray-600 dark:text-gray-400" />
                 <p class="text-lg sm:text-2xl font-bold">{{ formatNumber(overview?.videos.totalShares || 0) }}</p>
                 <p class="text-xs sm:text-sm text-dimmed">Total Shares</p>
               </div>
