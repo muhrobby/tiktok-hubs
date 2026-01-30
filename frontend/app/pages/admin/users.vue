@@ -586,10 +586,9 @@ onMounted(async () => {
     </template>
 
     <template #body>
-    <template #body>
       <!-- Filters -->
       <UCard class="mb-6">
-      <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex flex-col md:flex-row gap-4">
         <UInput
           v-model="searchQuery"
           icon="i-lucide-search"

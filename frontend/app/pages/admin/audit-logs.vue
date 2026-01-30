@@ -252,12 +252,9 @@ onMounted(async () => {
     </template>
 
     <template #body>
-    </template>
-
-    <template #body>
       <!-- Summary Cards -->
       <div v-if="summary" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-      <UCard>
+        <UCard>
         <div class="flex items-center gap-3">
           <div class="p-2 bg-gray-800/10 dark:bg-white/10 rounded-lg">
             <UIcon name="i-lucide-activity" class="w-5 h-5 text-gray-800 dark:text-gray-200" />

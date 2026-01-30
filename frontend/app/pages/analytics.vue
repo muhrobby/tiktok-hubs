@@ -193,7 +193,6 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
 
     <template #body>
       <div class="space-y-4 sm:space-y-6">
-      <div class="space-y-4 sm:space-y-6">
         <!-- Loading State -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-20">
           <UIcon name="i-lucide-loader-2" class="animate-spin w-10 h-10 mb-4 text-gray-900 dark:text-white" />

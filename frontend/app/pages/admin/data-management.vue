@@ -204,14 +204,11 @@ const formatFileSize = (bytes: number): string => {
     </template>
 
     <template #body>
-    </template>
-
-    <template #body>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-      <!-- ========================================== -->
-      <!-- LEFT COLUMN: EXPORT SECTION -->
-      <!-- ========================================== -->
-      <div class="space-y-6">
+        <!-- ========================================== -->
+        <!-- LEFT COLUMN: EXPORT SECTION -->
+        <!-- ========================================== -->
+        <div class="space-y-6">
         <!-- Quick Export Cards -->
         <UCard v-if="canExport">
           <template #header>
