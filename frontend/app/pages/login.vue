@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import * as z from 'zod'
+import type { FormSubmitEvent, AuthFormField } from '@nuxt/ui'
+
 /**
  * Login Page
- * Handles user authentication with disclaimer
+ * Handles user authentication with disclaimer using UAuthForm
  */
 
 definePageMeta({
@@ -10,12 +13,35 @@ definePageMeta({
 
 const auth = useAuth();
 const router = useRouter();
+const toast = useToast();
 
-// Form state
-const form = reactive({
-  username: "",
-  password: "",
-});
+// Form validation schema
+const schema = z.object({
+  username: z.string().min(1, 'Username is required'),
+  password: z.string().min(1, 'Password is required')
+})
+
+type Schema = z.output<typeof schema>
+
+// Form fields configuration
+const fields: AuthFormField[] = [
+  {
+    name: 'username',
+    type: 'text',
+    label: 'Username',
+    placeholder: 'Enter your username',
+    icon: 'i-lucide-user',
+    required: true
+  },
+  {
+    name: 'password',
+    type: 'password',
+    label: 'Password',
+    placeholder: 'Enter your password',
+    icon: 'i-lucide-lock',
+    required: true
+  }
+]
 
 const isLoading = ref(false);
 const errorMessage = ref("");
@@ -28,37 +54,32 @@ onMounted(async () => {
   }
 });
 
-// Handle login
-const handleLogin = async () => {
-  if (!form.username || !form.password) {
-    errorMessage.value = "Please enter username and password";
-    return;
-  }
-
-  isLoading.value = true;
+// Handle form submission
+async function onSubmit(event: FormSubmitEvent<Schema>) {
   errorMessage.value = "";
+  isLoading.value = true;
 
   const success = await auth.login({
-    username: form.username,
-    password: form.password,
+    username: event.data.username,
+    password: event.data.password,
   });
 
   isLoading.value = false;
 
   if (success) {
+    toast.add({
+      title: 'Login successful',
+      description: 'Welcome back!',
+      color: 'success'
+    })
     // Redirect to intended page or home
     const redirect = useRoute().query.redirect as string;
     router.push(redirect || "/");
   } else {
     errorMessage.value = auth.error.value || "Login failed";
   }
-};
+}
 
-// Handle form submit
-const onSubmit = (event: Event) => {
-  event.preventDefault();
-  handleLogin();
-};
 </script>
 
 <template>
@@ -160,81 +181,44 @@ const onSubmit = (event: Event) => {
         <!-- RIGHT SIDE - Login Form (White Theme) -->
         <div class="bg-white dark:bg-gray-900 p-8 md:p-12 flex flex-col justify-center">
           <div class="max-w-md mx-auto w-full">
-            <!-- Header -->
-            <div class="mb-8">
-              <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                Welcome Back
-              </h2>
-              <p class="text-gray-600 dark:text-gray-400">
-                Sign in to access your dashboard
-              </p>
-            </div>
-
-            <!-- Login Form -->
-            <form @submit="onSubmit" class="space-y-6">
-              <!-- Error Message -->
-              <UAlert
-                v-if="errorMessage"
-                color="error"
-                variant="soft"
-                :title="errorMessage"
-                icon="i-lucide-alert-circle"
-                :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
-                @close="errorMessage = ''"
-              />
-
-              <!-- Username -->
-              <UFormField label="Username" name="username" required class="w-full">
-                <UInput
-                  v-model="form.username"
-                  placeholder="Enter your username"
-                  icon="i-lucide-user"
-                  size="xl"
-                  autofocus
-                  :disabled="isLoading"
-                  class="w-full"
+            <!-- UAuthForm Component -->
+            <UAuthForm
+              :schema="schema"
+              :fields="fields"
+              :submit="{ 
+                label: 'Sign in', 
+                size: 'xl', 
+                loading: isLoading,
+                color: 'gray',
+                class: 'bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900',
+                icon: 'i-lucide-log-in'
+              }"
+              title="Welcome Back"
+              description="Sign in to access your dashboard"
+              @submit="onSubmit"
+            >
+              <template #validation>
+                <UAlert
+                  v-if="errorMessage"
+                  color="error"
+                  variant="soft"
+                  :title="errorMessage"
+                  icon="i-lucide-alert-circle"
+                  :close-button="{ icon: 'i-lucide-x', color: 'error', variant: 'link' }"
+                  @close="errorMessage = ''"
                 />
-              </UFormField>
-
-              <!-- Password -->
-              <UFormField label="Password" name="password" required class="w-full">
-                <UInput
-                  v-model="form.password"
-                  type="password"
-                  placeholder="Enter your password"
-                  icon="i-lucide-lock"
-                  size="xl"
-                  :disabled="isLoading"
-                  class="w-full"
-                  @keyup.enter="handleLogin"
-                />
-              </UFormField>
-
-              <!-- Submit Button -->
-              <UButton
-                type="submit"
-                block
-                size="xl"
-                color="gray"
-                :loading="isLoading"
-                :disabled="isLoading || !form.username || !form.password"
-                class="mt-6 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900"
-              >
-                <template #leading>
-                  <UIcon v-if="!isLoading" name="i-lucide-log-in" />
-                </template>
-                {{ isLoading ? "Signing in..." : "Sign in" }}
-              </UButton>
-            </form>
-
-            <!-- Additional Info -->
-            <div class="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p class="text-xs text-gray-600 dark:text-gray-400 text-center leading-relaxed">
-                By signing in, you agree that this is a third-party management tool and 
-                acknowledge our <NuxtLink to="/about" class="text-gray-900 dark:text-white hover:underline font-medium">disclaimer</NuxtLink>.
-                Your credentials are never stored or shared.
-              </p>
-            </div>
+              </template>
+              
+              <template #footer>
+                <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <p class="text-xs text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+                    By signing in, you agree that this is a third-party management tool and 
+                    acknowledge our <NuxtLink to="/about" class="text-gray-900 dark:text-white hover:underline font-medium">disclaimer</NuxtLink>.
+                    Your credentials are never stored or shared.
+                  </p>
+                </div>
+              </template>
+            </UAuthForm>
           </div>
         </div>
 
