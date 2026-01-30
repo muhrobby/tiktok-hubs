@@ -565,26 +565,30 @@ onMounted(async () => {
 </script>
 
 <template>
-  <UContainer class="py-6">
-    <!-- Header -->
-    <PageHeader 
-      title="User Management" 
-      description="Manage users and their roles"
-    >
-      <template #actions>
-        <UButton
-          v-if="canManageUsers"
-          icon="i-lucide-plus"
-          size="lg"
-          @click="isCreateModalOpen = true"
-        >
-          Add User
-        </UButton>
-      </template>
-    </PageHeader>
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar title="User Management" icon="i-lucide-users">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
 
-    <!-- Filters -->
-    <UCard class="mb-6">
+        <template #right>
+          <UButton
+            v-if="canManageUsers"
+            icon="i-lucide-plus"
+            size="sm"
+            @click="isCreateModalOpen = true"
+          >
+            Add User
+          </UButton>
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+    <template #body>
+      <!-- Filters -->
+      <UCard class="mb-6">
       <div class="flex flex-col md:flex-row gap-4">
         <UInput
           v-model="searchQuery"
@@ -895,5 +899,6 @@ onMounted(async () => {
         </form>
       </template>
     </UModal>
-  </UContainer>
+    </template>
+  </UDashboardPanel>
 </template>

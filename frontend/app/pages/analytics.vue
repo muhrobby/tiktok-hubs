@@ -151,41 +151,49 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
 </script>
 
 <template>
-  <UContainer class="py-4 sm:py-6 max-w-full overflow-x-hidden">
-    <!-- Header -->
-    <PageHeader title="Analytics" description="View system-wide analytics and insights">
-      <template #actions>
-        <USelect
-          v-model="selectedStore"
-          :items="[
-            { label: 'All Stores', value: 'all' },
-            ...storesList.map(s => ({ label: s.storeName, value: s.storeCode }))
-          ]"
-          class="w-full sm:w-48"
-          size="sm"
-          placeholder="Filter by store"
-        />
-        <USelect
-          v-model="selectedDays"
-          :items="daysOptions"
-          class="w-full sm:w-32"
-          size="sm"
-        />
-        <UButton
-          icon="i-lucide-refresh-cw"
-          variant="outline"
-          :loading="loading"
-          @click="loadData"
-          size="sm"
-          class="w-full sm:w-auto"
-        >
-          <span class="hidden sm:inline">Refresh</span>
-          <span class="sm:hidden">↻</span>
-        </UButton>
-      </template>
-    </PageHeader>
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar title="Analytics" icon="i-lucide-bar-chart-3">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
 
-    <div class="mt-4 sm:mt-6">
+        <template #right>
+          <div class="flex items-center gap-2">
+            <USelect
+              v-model="selectedStore"
+              :items="[
+                { label: 'All Stores', value: 'all' },
+                ...storesList.map(s => ({ label: s.storeName, value: s.storeCode }))
+              ]"
+              class="w-48"
+              size="sm"
+              placeholder="Filter by store"
+            />
+            <USelect
+              v-model="selectedDays"
+              :items="daysOptions"
+              class="w-32"
+              size="sm"
+            />
+            <UButton
+              icon="i-lucide-refresh-cw"
+              variant="outline"
+              :loading="loading"
+              @click="loadData"
+              size="sm"
+            >
+              <span class="hidden sm:inline">Refresh</span>
+              <span class="sm:hidden">↻</span>
+            </UButton>
+          </div>
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+      <div class="space-y-4 sm:space-y-6">
+      <div class="space-y-4 sm:space-y-6">
         <!-- Loading State -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-20">
           <UIcon name="i-lucide-loader-2" class="animate-spin w-10 h-10 mb-4 text-gray-900 dark:text-white" />
@@ -501,5 +509,6 @@ const getSyncHealthColor = (health: SyncHealth | null) => {
           </UCard>
         </div>
       </div>
-  </UContainer>
+    </template>
+  </UDashboardPanel>
 </template>

@@ -194,14 +194,20 @@ const formatFileSize = (bytes: number): string => {
 </script>
 
 <template>
-  <UContainer class="py-6">
-    <!-- Header -->
-    <PageHeader 
-      title="Data Management" 
-      description="Export and import data in bulk with step-by-step guidance"
-    />
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar title="Data Management" icon="i-lucide-database">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+    <template #body>
+    </template>
+
+    <template #body>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
       <!-- ========================================== -->
       <!-- LEFT COLUMN: EXPORT SECTION -->
       <!-- ========================================== -->
@@ -772,6 +778,7 @@ const formatFileSize = (bytes: number): string => {
           </div>
         </UCard>
       </div>
-    </div>
-  </UContainer>
+      </div>
+    </template>
+  </UDashboardPanel>
 </template>

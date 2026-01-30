@@ -236,21 +236,27 @@ onMounted(async () => {
 </script>
 
 <template>
-  <UContainer class="py-6">
-    <!-- Header -->
-    <PageHeader 
-      title="Audit Logs" 
-      description="View system activity and security logs"
-    >
-      <template #actions>
-        <UButton icon="i-lucide-refresh-cw" variant="outline" @click="refreshData" :loading="isLoading">
-          Refresh
-        </UButton>
-      </template>
-    </PageHeader>
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar title="Audit Logs" icon="i-lucide-shield-check">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
 
-    <!-- Summary Cards -->
-    <div v-if="summary" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <template #right>
+          <UButton icon="i-lucide-refresh-cw" variant="outline" @click="refreshData" :loading="isLoading" size="sm">
+            Refresh
+          </UButton>
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+    </template>
+
+    <template #body>
+      <!-- Summary Cards -->
+      <div v-if="summary" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       <UCard>
         <div class="flex items-center gap-3">
           <div class="p-2 bg-gray-800/10 dark:bg-white/10 rounded-lg">
@@ -487,5 +493,6 @@ onMounted(async () => {
         </div>
       </template>
     </UModal>
-  </UContainer>
+    </template>
+  </UDashboardPanel>
 </template>
