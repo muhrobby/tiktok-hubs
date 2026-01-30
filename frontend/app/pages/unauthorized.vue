@@ -20,46 +20,59 @@ const message = computed(() => {
   return "You are not authorized to access this page.";
 });
 
-// Get user's current roles
-const userRoles = computed(() => {
-  if (!user.value?.roles.length) return "No roles assigned";
-  return user.value.roles.map((r) => r.name).join(", ");
-});
-
 definePageMeta({
   layout: false,
 });
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-default p-4">
-    <div class="max-w-md w-full text-center">
-      <div class="mb-8">
-        <UIcon
-          name="i-lucide-shield-x"
-          class="text-6xl text-gray-800 dark:text-gray-200 mx-auto mb-4"
+  <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4">
+    <div class="max-w-md w-full">
+      <UPageCard
+        title="Access Denied"
+        description=""
+        icon="i-lucide-shield-x"
+        :ui="{
+          leading: 'p-4 rounded-full bg-error/10 ring ring-inset ring-error/25'
+        }"
+      >
+        <UAlert
+          color="error"
+          variant="subtle"
+          :title="message"
+          icon="i-lucide-alert-circle"
+          class="mb-6"
         />
-        <h1 class="text-2xl font-bold mb-2">Access Denied</h1>
-        <p class="text-muted">{{ message }}</p>
-      </div>
 
-      <UCard class="mb-6">
-        <div class="text-sm">
-          <p class="text-muted mb-2">Your current roles:</p>
-          <p class="font-medium">{{ userRoles }}</p>
+        <div class="mb-6">
+          <p class="text-sm text-dimmed mb-2">Your current roles:</p>
+          <div class="flex flex-wrap gap-2">
+            <UBadge
+              v-for="role in user?.roles"
+              :key="`${role.name}-${role.storeCode}`"
+              color="neutral"
+              variant="subtle"
+            >
+              {{ role.name }}
+              <span v-if="role.storeCode" class="ml-1 opacity-75">
+                ({{ role.storeCode }})
+              </span>
+            </UBadge>
+            <UBadge v-if="!user?.roles?.length" color="neutral" variant="subtle">
+              No roles assigned
+            </UBadge>
+          </div>
         </div>
-      </UCard>
 
-      <div class="flex flex-col sm:flex-row gap-3 justify-center">
-        <UButton to="/" color="gray" variant="solid">
-          <UIcon name="i-lucide-home" class="mr-2" />
-          Go to Dashboard
-        </UButton>
-        <UButton to="/login" color="neutral" variant="outline">
-          <UIcon name="i-lucide-log-in" class="mr-2" />
-          Switch Account
-        </UButton>
-      </div>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <UButton to="/" variant="solid" block icon="i-lucide-home">
+            Go to Dashboard
+          </UButton>
+          <UButton to="/login" color="neutral" variant="outline" block icon="i-lucide-log-in">
+            Switch Account
+          </UButton>
+        </div>
+      </UPageCard>
     </div>
   </div>
 </template>

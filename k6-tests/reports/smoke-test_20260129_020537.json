@@ -432,3 +432,11 @@
 {"metric":"auth_errors","type":"Point","data":{"time":"2026-01-29T02:06:21.157408505+07:00","value":1,"tags":{"group":"::User Authentication Flow","scenario":"default"}}}
 {"metric":"errors","type":"Point","data":{"time":"2026-01-29T02:06:21.157420033+07:00","value":1,"tags":{"group":"::User Authentication Flow","scenario":"default"}}}
 {"metric":"group_duration","type":"Point","data":{"time":"2026-01-29T02:06:21.157586036+07:00","value":4.784892,"tags":{"group":"::User Authentication Flow","scenario":"default"}}}
+{"metric":"vus","type":"Point","data":{"time":"2026-01-29T02:06:22.078727849+07:00","value":1,"tags":{}}}
+{"metric":"vus_max","type":"Point","data":{"time":"2026-01-29T02:06:22.078727849+07:00","value":1,"tags":{}}}
+{"metric":"data_sent","type":"Point","data":{"time":"2026-01-29T02:06:22.604770817+07:00","value":352,"tags":{"group":"","scenario":"default"}}}
+{"metric":"data_received","type":"Point","data":{"time":"2026-01-29T02:06:22.604770817+07:00","value":6420,"tags":{"group":"","scenario":"default"}}}
+{"metric":"iteration_duration","type":"Point","data":{"time":"2026-01-29T02:06:22.604770817+07:00","value":3463.265732,"tags":{"group":"","scenario":"default"}}}
+{"metric":"iterations","type":"Point","data":{"time":"2026-01-29T02:06:22.604770817+07:00","value":1,"tags":{"group":"","scenario":"default"}}}
+{"metric":"data_sent","type":"Point","data":{"time":"2026-01-29T02:06:22.60595974+07:00","value":0,"tags":{"group":"::teardown"}}}
+{"metric":"data_received","type":"Point","data":{"time":"2026-01-29T02:06:22.60595974+07:00","value":0,"tags":{"group":"::teardown"}}}
