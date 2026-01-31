@@ -236,22 +236,22 @@ onMounted(async () => {
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar title="Audit Logs" icon="i-lucide-shield-check">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-        </template>
+  <div>
+    <!-- Header -->
+    <UDashboardNavbar title="Audit Logs" icon="i-lucide-shield-check">
+      <template #leading>
+        <UDashboardSidebarCollapse />
+      </template>
 
-        <template #right>
-          <UButton icon="i-lucide-refresh-cw" variant="outline" @click="refreshData" :loading="isLoading" size="sm">
-            Refresh
-          </UButton>
-        </template>
-      </UDashboardNavbar>
-    </template>
+      <template #right>
+        <UButton icon="i-lucide-refresh-cw" variant="outline" @click="refreshData" :loading="isLoading" size="sm">
+          Refresh
+        </UButton>
+      </template>
+    </UDashboardNavbar>
 
-    <template #body>
+    <!-- Body -->
+    <div class="p-4 sm:p-6">
       <!-- Summary Cards -->
       <div v-if="summary" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <UCard>
@@ -490,6 +490,6 @@ onMounted(async () => {
         </div>
       </template>
     </UModal>
-    </template>
-  </UDashboardPanel>
+    </div>
+  </div>
 </template>

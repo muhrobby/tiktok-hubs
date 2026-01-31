@@ -194,16 +194,16 @@ const formatFileSize = (bytes: number): string => {
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar title="Data Management" icon="i-lucide-database">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-        </template>
-      </UDashboardNavbar>
-    </template>
+  <div>
+    <!-- Header -->
+    <UDashboardNavbar title="Data Management" icon="i-lucide-database">
+      <template #leading>
+        <UDashboardSidebarCollapse />
+      </template>
+    </UDashboardNavbar>
 
-    <template #body>
+    <!-- Body -->
+    <div class="p-4 sm:p-6">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         <!-- ========================================== -->
         <!-- LEFT COLUMN: EXPORT SECTION -->
@@ -776,6 +776,6 @@ const formatFileSize = (bytes: number): string => {
         </UCard>
       </div>
       </div>
-    </template>
-  </UDashboardPanel>
+    </div>
+  </div>
 </template>

@@ -89,29 +89,29 @@ const getStoreData = (store: Store) => {
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar title="Dashboard">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-        </template>
+  <div>
+    <!-- Header -->
+    <UDashboardNavbar title="Dashboard">
+      <template #leading>
+        <UDashboardSidebarCollapse />
+      </template>
 
-        <template #right>
-          <UButton
-            v-if="canCreateStore"
-            to="/tiktok-store-accounts"
-            color="gray"
-            icon="i-lucide-plus"
-            size="sm"
-          >
-            <span class="hidden sm:inline">Tambah Toko Baru</span>
-            <span class="sm:hidden">Tambah Toko</span>
-          </UButton>
-        </template>
-      </UDashboardNavbar>
-    </template>
+      <template #right>
+        <UButton
+          v-if="canCreateStore"
+          to="/tiktok-store-accounts"
+          color="gray"
+          icon="i-lucide-plus"
+          size="sm"
+        >
+          <span class="hidden sm:inline">Tambah Toko Baru</span>
+          <span class="sm:hidden">Tambah Toko</span>
+        </UButton>
+      </template>
+    </UDashboardNavbar>
 
-    <template #body>
+    <!-- Body -->
+    <div class="p-4 sm:p-6">
 
       <!-- Stats Cards with Enhanced Design -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
@@ -348,6 +348,6 @@ const getStoreData = (store: Store) => {
         </div>
       </div>
     </UCard>
-    </template>
-  </UDashboardPanel>
+    </div>
+  </div>
 </template>

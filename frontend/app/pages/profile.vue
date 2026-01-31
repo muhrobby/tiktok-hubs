@@ -75,16 +75,16 @@ const formatDate = (dateString: string | null) => {
 </script>
 
 <template>
-  <UDashboardPanel id="profile" :ui="{ body: 'lg:py-12' }">
-    <template #header>
-      <UDashboardNavbar title="Profile">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-        </template>
-      </UDashboardNavbar>
-    </template>
+  <div id="profile">
+    <!-- Header -->
+    <UDashboardNavbar title="Profile">
+      <template #leading>
+        <UDashboardSidebarCollapse />
+      </template>
+    </UDashboardNavbar>
 
-    <template #body>
+    <!-- Body -->
+    <div class="p-4 sm:p-6 lg:py-12">
       <div class="flex flex-col gap-6 lg:gap-12 w-full lg:max-w-2xl mx-auto">
         <!-- User Info Card -->
         <UPageCard
@@ -245,6 +245,6 @@ const formatDate = (dateString: string | null) => {
           </div>
         </UPageCard>
       </div>
-    </template>
-  </UDashboardPanel>
+    </div>
+  </div>
 </template>

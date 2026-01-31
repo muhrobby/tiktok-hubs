@@ -212,20 +212,20 @@ const pagination = ref({
 </script>
 
 <template>
-  <UDashboardPanel id="customers">
-    <template #header>
-      <UDashboardNavbar title="Customers">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-        </template>
+  <div id="customers">
+    <!-- Header -->
+    <UDashboardNavbar title="Customers">
+      <template #leading>
+        <UDashboardSidebarCollapse />
+      </template>
 
-        <template #right>
-          <CustomersAddModal />
-        </template>
-      </UDashboardNavbar>
-    </template>
+      <template #right>
+        <CustomersAddModal />
+      </template>
+    </UDashboardNavbar>
 
-    <template #body>
+    <!-- Body -->
+    <div class="p-4 sm:p-6">
       <div class="flex flex-wrap items-center justify-between gap-1.5">
         <UInput
           v-model="email"
@@ -330,6 +330,6 @@ const pagination = ref({
           />
         </div>
       </div>
-    </template>
-  </UDashboardPanel>
+    </div>
+  </div>
 </template>

@@ -604,38 +604,38 @@ onMounted(() => {
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar :title="storeCode" icon="i-lucide-store">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-        </template>
+  <div>
+    <!-- Header -->
+    <UDashboardNavbar :title="storeCode" icon="i-lucide-store">
+      <template #leading>
+        <UDashboardSidebarCollapse />
+      </template>
 
-        <template #right>
-          <div class="flex gap-2">
-            <UButton
-              to="/tiktok-store-accounts"
-              color="neutral"
-              variant="ghost"
-              icon="i-lucide-arrow-left"
-            >
-              Kembali
-            </UButton>
-            <UButton
-              v-if="canTriggerSync"
-              color="gray"
-              icon="i-lucide-refresh-cw"
-              :loading="syncing"
-              @click="handleSync"
-            >
-              Sinkronkan Data
-            </UButton>
-          </div>
-        </template>
-      </UDashboardNavbar>
-    </template>
+      <template #right>
+        <div class="flex gap-2">
+          <UButton
+            to="/tiktok-store-accounts"
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-arrow-left"
+          >
+            Kembali
+          </UButton>
+          <UButton
+            v-if="canTriggerSync"
+            color="gray"
+            icon="i-lucide-refresh-cw"
+            :loading="syncing"
+            @click="handleSync"
+          >
+            Sinkronkan Data
+          </UButton>
+        </div>
+      </template>
+    </UDashboardNavbar>
 
-    <template #body>
+    <!-- Body -->
+    <div class="p-4 sm:p-6">
       <!-- User Stats -->
       <div class="mb-6">
         <h2 class="text-xl font-semibold mb-3">Statistik Pengguna</h2>
@@ -1180,6 +1180,6 @@ onMounted(() => {
           </div>
         </div>
       </UCard>
-    </template>
-  </UDashboardPanel>
+    </div>
+  </div>
 </template>

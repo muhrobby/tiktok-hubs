@@ -565,27 +565,27 @@ onMounted(async () => {
 </script>
 
 <template>
-  <UDashboardPanel>
-    <template #header>
-      <UDashboardNavbar title="User Management" icon="i-lucide-users">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-        </template>
+  <div>
+    <!-- Header -->
+    <UDashboardNavbar title="User Management" icon="i-lucide-users">
+      <template #leading>
+        <UDashboardSidebarCollapse />
+      </template>
 
-        <template #right>
-          <UButton
-            v-if="canManageUsers"
-            icon="i-lucide-plus"
-            size="sm"
-            @click="isCreateModalOpen = true"
-          >
-            Add User
-          </UButton>
-        </template>
-      </UDashboardNavbar>
-    </template>
+      <template #right>
+        <UButton
+          v-if="canManageUsers"
+          icon="i-lucide-plus"
+          size="sm"
+          @click="isCreateModalOpen = true"
+        >
+          Add User
+        </UButton>
+      </template>
+    </UDashboardNavbar>
 
-    <template #body>
+    <!-- Body -->
+    <div class="p-4 sm:p-6">
       <!-- Filters -->
       <UCard class="mb-6">
         <div class="flex flex-col md:flex-row gap-4">
@@ -895,9 +895,9 @@ onMounted(async () => {
               Assign Role
             </UButton>
           </div>
-        </form>
-      </template>
-    </UModal>
+      </form>
     </template>
-  </UDashboardPanel>
+  </UModal>
+    </div>
+  </div>
 </template>
