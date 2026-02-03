@@ -2,9 +2,10 @@
  * User Service
  *
  * Handles user CRUD operations and role assignment
+ * Includes Redis caching for frequently accessed data
  */
 
-import { eq, and, ilike, desc, sql } from "drizzle-orm";
+import { eq, and, ilike, desc, sql, inArray } from "drizzle-orm";
 import { db } from "../db/client.js";
 import {
   users,
@@ -19,6 +20,7 @@ import {
 } from "../db/schema.js";
 import { hashPassword } from "./auth.service.js";
 import { logger } from "../utils/logger.js";
+import { get, invalidateUser, CacheKeys, getCacheTTL } from "../cache/index.js";
 
 // ============================================
 // TYPES
@@ -73,20 +75,32 @@ export interface UserFilters {
 // ============================================
 
 /**
- * Get all roles
+ * Get all roles (cached)
  */
 export async function getRoles(): Promise<Role[]> {
-  return db.select().from(roles).orderBy(roles.id);
+  return get(
+    CacheKeys.allRoles(),
+    async () => db.select().from(roles).orderBy(roles.id),
+    getCacheTTL("long") // Cache for 1 hour - roles rarely change
+  );
 }
 
 /**
- * Get role by name
+ * Get role by name (cached)
  */
 export async function getRoleByName(name: RoleName): Promise<Role | null> {
-  const role = await db.query.roles.findFirst({
-    where: eq(roles.name, name),
-  });
-  return role || null;
+  const result = await get(
+    CacheKeys.roleByName(name),
+    async () => {
+      const role = await db.query.roles.findFirst({
+        where: eq(roles.name, name),
+      });
+      return role || null;
+    },
+    getCacheTTL("long") // Cache for 1 hour
+  );
+
+  return result;
 }
 
 /**
@@ -168,13 +182,21 @@ export async function createUser(input: CreateUserInput): Promise<User> {
 }
 
 /**
- * Get user by ID
+ * Get user by ID (cached)
  */
 export async function getUserById(userId: number): Promise<User | null> {
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
-  });
-  return user || null;
+  const result = await get(
+    CacheKeys.user(userId),
+    async () => {
+      const user = await db.query.users.findFirst({
+        where: eq(users.id, userId),
+      });
+      return user || null;
+    },
+    getCacheTTL("default") // Cache for 5 minutes
+  );
+
+  return result;
 }
 
 /**
@@ -224,6 +246,9 @@ export async function updateUser(
     .where(eq(users.id, userId))
     .returning();
 
+  // Invalidate user cache
+  await invalidateUser(userId);
+
   logger.info({ userId, changes: Object.keys(input) }, "User updated");
 
   return updatedUser;
@@ -262,31 +287,21 @@ export async function deleteUser(userId: number): Promise<void> {
 
   await db.delete(users).where(eq(users.id, userId));
 
+  // Invalidate user cache
+  await invalidateUser(userId);
+
   logger.info({ userId, username: user.username }, "User deleted");
 }
 
 /**
  * List users with filters and pagination
+ * FIXED: Resolved N+1 query issue by using single query with joins
  */
 export async function listUsers(
   filters: UserFilters = {}
 ): Promise<{ users: UserListItem[]; total: number }> {
   const { search, isActive, roleName, page = 1, limit = 20 } = filters;
   const offset = (page - 1) * limit;
-
-  // Build base query
-  let baseQuery = db
-    .select({
-      id: users.id,
-      username: users.username,
-      email: users.email,
-      fullName: users.fullName,
-      isActive: users.isActive,
-      lastLoginAt: users.lastLoginAt,
-      createdAt: users.createdAt,
-    })
-    .from(users)
-    .$dynamic();
 
   // Build conditions
   const conditions: ReturnType<typeof eq>[] = [];
@@ -302,7 +317,7 @@ export async function listUsers(
   }
 
   if (roleName) {
-    // Join with userRoles and roles to filter by role
+    // Subquery to filter by role
     const role = await getRoleByName(roleName);
     if (role) {
       const usersWithRole = await db
@@ -320,61 +335,69 @@ export async function listUsers(
     }
   }
 
-  // Apply conditions
-  if (conditions.length > 0) {
-    baseQuery = baseQuery.where(and(...conditions));
-  }
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
   // Get total count
   const countResult = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(users)
-    .where(conditions.length > 0 ? and(...conditions) : undefined);
+    .where(whereClause);
   const total = countResult[0].count;
 
-  // Get paginated results
-  const usersList = await baseQuery
+  // Get paginated user results
+  const usersList = await db
+    .select({
+      id: users.id,
+      username: users.username,
+      email: users.email,
+      fullName: users.fullName,
+      isActive: users.isActive,
+      lastLoginAt: users.lastLoginAt,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .where(whereClause)
     .orderBy(desc(users.createdAt))
     .limit(limit)
     .offset(offset);
 
-  // Get roles for each user
-  const usersWithRoles: UserListItem[] = await Promise.all(
-    usersList.map(async (user) => {
-      const userRolesData = await db
-        .select({
-          roleName: roles.name,
-          storeCode: userRoles.storeCode,
-        })
-        .from(userRoles)
-        .innerJoin(roles, eq(userRoles.roleId, roles.id))
-        .leftJoin(stores, eq(userRoles.storeCode, stores.storeCode))
-        .where(eq(userRoles.userId, user.id));
+  if (usersList.length === 0) {
+    return { users: [], total };
+  }
 
-      // Get store names
-      const rolesWithStoreNames = await Promise.all(
-        userRolesData.map(async (ur) => {
-          let storeName: string | null = null;
-          if (ur.storeCode) {
-            const store = await db.query.stores.findFirst({
-              where: eq(stores.storeCode, ur.storeCode),
-            });
-            storeName = store?.storeName || null;
-          }
-          return {
-            roleName: ur.roleName as RoleName,
-            storeCode: ur.storeCode,
-            storeName,
-          };
-        })
-      );
+  // FIXED: Single query to get all user roles with store names
+  const userIds = usersList.map((u) => u.id);
 
-      return {
-        ...user,
-        roles: rolesWithStoreNames,
-      };
+  const allUserRoles = await db
+    .select({
+      userId: userRoles.userId,
+      roleName: roles.name,
+      storeCode: userRoles.storeCode,
+      storeName: stores.storeName,
     })
-  );
+    .from(userRoles)
+    .innerJoin(roles, eq(userRoles.roleId, roles.id))
+    .leftJoin(stores, eq(userRoles.storeCode, stores.storeCode))
+    .where(inArray(userRoles.userId, userIds));
+
+  // Group roles by user ID
+  const rolesByUser = new Map<number, UserListItem["roles"]>();
+  for (const ur of allUserRoles) {
+    if (!rolesByUser.has(ur.userId)) {
+      rolesByUser.set(ur.userId, []);
+    }
+    rolesByUser.get(ur.userId)!.push({
+      roleName: ur.roleName as RoleName,
+      storeCode: ur.storeCode,
+      storeName: ur.storeName,
+    });
+  }
+
+  // Combine users with their roles
+  const usersWithRoles: UserListItem[] = usersList.map((user) => ({
+    ...user,
+    roles: rolesByUser.get(user.id) || [],
+  }));
 
   return { users: usersWithRoles, total };
 }
@@ -438,6 +461,9 @@ export async function assignRole(input: AssignRoleInput): Promise<void> {
     storeCode: roleName === "Store" ? storeCode : null,
   });
 
+  // Invalidate user roles cache
+  await invalidateUser(userId);
+
   logger.info({ userId, roleName, storeCode }, "Role assigned to user");
 }
 
@@ -476,42 +502,42 @@ export async function removeRole(
     )
   );
 
+  // Invalidate user roles cache
+  await invalidateUser(userId);
+
   logger.info({ userId, roleName, storeCode }, "Role removed from user");
 }
 
 /**
- * Get user's roles
+ * Get user's roles (cached)
+ * FIXED: Resolved N+1 query by using LEFT JOIN with stores
  */
 export async function getUserRoles(
   userId: number
 ): Promise<{ roleName: RoleName; storeCode: string | null; storeName: string | null }[]> {
-  const userRolesData = await db
-    .select({
-      roleName: roles.name,
-      storeCode: userRoles.storeCode,
-    })
-    .from(userRoles)
-    .innerJoin(roles, eq(userRoles.roleId, roles.id))
-    .where(eq(userRoles.userId, userId));
+  return get(
+    CacheKeys.userRoles(userId),
+    async () => {
+      // FIXED: Single query with LEFT JOIN to get store names
+      const userRolesData = await db
+        .select({
+          roleName: roles.name,
+          storeCode: userRoles.storeCode,
+          storeName: stores.storeName,
+        })
+        .from(userRoles)
+        .innerJoin(roles, eq(userRoles.roleId, roles.id))
+        .leftJoin(stores, eq(userRoles.storeCode, stores.storeCode))
+        .where(eq(userRoles.userId, userId));
 
-  const result = await Promise.all(
-    userRolesData.map(async (ur) => {
-      let storeName: string | null = null;
-      if (ur.storeCode) {
-        const store = await db.query.stores.findFirst({
-          where: eq(stores.storeCode, ur.storeCode),
-        });
-        storeName = store?.storeName || null;
-      }
-      return {
+      return userRolesData.map((ur) => ({
         roleName: ur.roleName as RoleName,
         storeCode: ur.storeCode,
-        storeName,
-      };
-    })
+        storeName: ur.storeName,
+      }));
+    },
+    getCacheTTL("default") // Cache for 5 minutes
   );
-
-  return result;
 }
 
 // ============================================

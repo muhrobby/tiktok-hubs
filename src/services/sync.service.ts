@@ -2,6 +2,7 @@
  * Sync Service
  *
  * Handles synchronization of TikTok data to database
+ * Includes Redis caching for frequently accessed data
  */
 
 import { db } from "../db/client.js";
@@ -18,6 +19,7 @@ import { storeLogger, jobLogger } from "../utils/logger.js";
 import { withStoreLock } from "../utils/locks.js";
 import * as tokenService from "./token.service.js";
 import * as tiktokApi from "./tiktokApi.service.js";
+import { get, invalidateStore, CacheKeys, getCacheTTL } from "../cache/index.js";
 
 function sanitizeErrorMessage(message: string): string {
   return message
@@ -156,6 +158,9 @@ export async function syncUserStats(storeCode: string): Promise<SyncResult> {
 
     // Update last sync time
     await tokenService.updateLastSyncTime(storeCode);
+
+    // Invalidate store caches after successful sync
+    await invalidateStore(storeCode);
 
     const duration = Date.now() - startTime;
     const message = `User stats synced successfully: ${userInfo.followerCount} followers, ${userInfo.videoCount} videos`;
@@ -331,6 +336,9 @@ export async function syncVideoStats(storeCode: string): Promise<SyncResult> {
 
     // Update last sync time
     await tokenService.updateLastSyncTime(storeCode);
+
+    // Invalidate store caches after successful sync
+    await invalidateStore(storeCode);
 
     const duration = Date.now() - startTime;
     const message = `Video stats synced successfully: ${processedCount} videos processed`;
@@ -524,7 +532,8 @@ export async function runSyncForAllStores(): Promise<{
 // ============================================
 
 /**
- * Get all stores with their connection status
+ * Get all stores with their connection status (cached)
+ * FIXED: Resolved N+1 query issue by using LEFT JOIN
  */
 export async function getStoresWithStatus(): Promise<
   Array<{
@@ -537,29 +546,36 @@ export async function getStoresWithStatus(): Promise<
     connectedAt: Date | null;
   }>
 > {
-  const storeList = await db.select().from(stores);
+  return get(
+    CacheKeys.storeList(),
+    async () => {
+      // FIXED: Single query with LEFT JOIN instead of N+1 queries
+      const results = await db
+        .select({
+          storeCode: stores.storeCode,
+          storeName: stores.storeName,
+          picName: stores.picName,
+          picContact: stores.picContact,
+          status: storeAccounts.status,
+          lastSyncTime: storeAccounts.lastSyncTime,
+          connectedAt: storeAccounts.connectedAt,
+        })
+        .from(stores)
+        .leftJoin(storeAccounts, eq(stores.storeCode, storeAccounts.storeCode))
+        .orderBy(stores.storeCode);
 
-  const results = await Promise.all(
-    storeList.map(async (store: typeof stores.$inferSelect) => {
-      const [account] = await db
-        .select()
-        .from(storeAccounts)
-        .where(eq(storeAccounts.storeCode, store.storeCode))
-        .limit(1);
-
-      return {
-        storeCode: store.storeCode,
-        storeName: store.storeName,
-        picName: store.picName,
-        picContact: store.picContact,
-        status: account?.status || "NOT_CONNECTED",
-        lastSyncTime: account?.lastSyncTime || null,
-        connectedAt: account?.connectedAt || null,
-      };
-    })
+      return results.map((r) => ({
+        storeCode: r.storeCode,
+        storeName: r.storeName,
+        picName: r.picName,
+        picContact: r.picContact,
+        status: r.status || "NOT_CONNECTED",
+        lastSyncTime: r.lastSyncTime || null,
+        connectedAt: r.connectedAt || null,
+      }));
+    },
+    getCacheTTL("default") // Cache for 5 minutes
   );
-
-  return results;
 }
 
 /**
@@ -581,6 +597,9 @@ export async function createStore(data: {
       createdAt: new Date(),
     })
     .returning();
+
+  // Invalidate store list cache
+  await invalidateStore(data.storeCode);
 
   return store;
 }
@@ -639,51 +658,63 @@ export async function getAccountsByStore(storeCode: string): Promise<
 }
 
 /**
- * Get user stats history for a specific store
+ * Get user stats history for a specific store (cached)
  */
 export async function getUserStatsByStore(
   storeCode: string,
   days: number = 30
 ): Promise<(typeof tiktokUserDaily.$inferSelect)[]> {
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - days);
-  const cutoffDateStr = cutoffDate.toISOString().split("T")[0];
+  return get(
+    CacheKeys.userStats(storeCode, days),
+    async () => {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - days);
+      const cutoffDateStr = cutoffDate.toISOString().split("T")[0];
 
-  const stats = await db
-    .select()
-    .from(tiktokUserDaily)
-    .where(
-      and(
-        eq(tiktokUserDaily.storeCode, storeCode),
-        sql`${tiktokUserDaily.snapshotDate} >= ${cutoffDateStr}`
-      )
-    )
-    .orderBy(sql`${tiktokUserDaily.snapshotDate} DESC`);
+      const stats = await db
+        .select()
+        .from(tiktokUserDaily)
+        .where(
+          and(
+            eq(tiktokUserDaily.storeCode, storeCode),
+            sql`${tiktokUserDaily.snapshotDate} >= ${cutoffDateStr}`
+          )
+        )
+        .orderBy(sql`${tiktokUserDaily.snapshotDate} DESC`);
 
-  return stats;
+      return stats;
+    },
+    getCacheTTL("short") // Cache for 1 minute - stats may change
+  );
 }
 
 /**
- * Get video stats for a specific store
+ * Get video stats for a specific store (cached)
  */
 export async function getVideoStatsByStore(
   storeCode: string,
   days: number = 30
 ): Promise<(typeof tiktokVideoDaily.$inferSelect)[]> {
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - days);
-  const cutoffDateStr = cutoffDate.toISOString().split("T")[0];
+  return get(
+    CacheKeys.videoStats(storeCode, days),
+    async () => {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - days);
+      const cutoffDateStr = cutoffDate.toISOString().split("T")[0];
 
-  const stats = await db
-    .select()
-    .from(tiktokVideoDaily)
-    .where(
-      and(
-        eq(tiktokVideoDaily.storeCode, storeCode),
-        sql`${tiktokVideoDaily.snapshotDate} >= ${cutoffDateStr}`
-      )
-    )
-    .orderBy(sql`${tiktokVideoDaily.snapshotDate} DESC`);
+      const stats = await db
+        .select()
+        .from(tiktokVideoDaily)
+        .where(
+          and(
+            eq(tiktokVideoDaily.storeCode, storeCode),
+            sql`${tiktokVideoDaily.snapshotDate} >= ${cutoffDateStr}`
+          )
+        )
+        .orderBy(sql`${tiktokVideoDaily.snapshotDate} DESC`);
 
-  return stats;
+      return stats;
+    },
+    getCacheTTL("short") // Cache for 1 minute - stats may change
+  );
 }

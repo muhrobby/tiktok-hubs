@@ -16,6 +16,7 @@ import { logger } from "./utils/logger.js";
 import { errorResponse } from "./utils/http.js";
 import { checkDbHealth } from "./db/client.js";
 import { validateEncryptionSetup } from "./utils/crypto.js";
+import { checkRedisHealth, getCacheStats, isCacheEnabled } from "./cache/index.js";
 import adminRoutes from "./routes/admin.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import userAuthRoutes from "./routes/userAuth.routes.js";
@@ -215,9 +216,23 @@ export function createApp() {
     const dbHealthy = await checkDbHealth();
     const encryptionValid = validateEncryptionSetup();
     const scheduler = getSchedulerStatus();
+    const redisHealthy = isCacheEnabled() ? await checkRedisHealth() : null;
 
-    const status = dbHealthy && encryptionValid ? "healthy" : "unhealthy";
+    const status = dbHealthy && encryptionValid && (redisHealthy === null || redisHealthy) ? "healthy" : "unhealthy";
     const statusCode = status === "healthy" ? 200 : 503;
+
+    const checks: any = {
+      database: dbHealthy ? "ok" : "fail",
+      encryption: encryptionValid ? "ok" : "fail",
+      scheduler: scheduler.enabled ? "enabled" : "disabled",
+    };
+
+    if (isCacheEnabled()) {
+      checks.redis = redisHealthy ? "ok" : "fail";
+      checks.caching = "enabled";
+    } else {
+      checks.caching = "disabled";
+    }
 
     return c.json(
       {
@@ -226,15 +241,43 @@ export function createApp() {
         uptime: process.uptime(),
         version: process.env.npm_package_version || "1.0.0",
         requestId,
-        checks: {
-          database: dbHealthy ? "ok" : "fail",
-          encryption: encryptionValid ? "ok" : "fail",
-          scheduler: scheduler.enabled ? "enabled" : "disabled",
-        },
+        checks,
         responseTime: Date.now() - startTime,
       },
       statusCode
     );
+  });
+
+  // Cache statistics endpoint (admin only)
+  app.get("/admin/cache/stats", async (c) => {
+    const apiKey = c.req.header("X-API-KEY");
+    const expectedKey = process.env.ADMIN_API_KEY;
+
+    // Simple API key check for cache stats
+    if (apiKey !== expectedKey) {
+      return errorResponse(c, 401, "UNAUTHORIZED", "Invalid API key");
+    }
+
+    const stats = getCacheStats();
+    const cacheEnabled = isCacheEnabled();
+    const redisHealthy = cacheEnabled ? await checkRedisHealth() : null;
+
+    // Calculate hit rate
+    const totalRequests = stats.hits + stats.misses;
+    const hitRate = totalRequests > 0 ? (stats.hits / totalRequests) * 100 : 0;
+
+    return c.json({
+      success: true,
+      data: {
+        enabled: cacheEnabled,
+        redisHealthy,
+        stats: {
+          ...stats,
+          totalRequests,
+          hitRate: parseFloat(hitRate.toFixed(2)),
+        },
+      },
+    });
   });
 
   // Auth routes (TikTok OAuth)

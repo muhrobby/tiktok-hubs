@@ -2,6 +2,7 @@
  * TikTok API Service
  *
  * Implements TikTok Display API for fetching user info and videos
+ * Includes Redis caching to reduce external API calls
  *
  * IMPORTANT: This implementation follows TikTok's official documentation.
  * Before deploying, verify endpoints and response structures at:
@@ -15,6 +16,7 @@
 
 import { logger } from "../utils/logger.js";
 import { withRetry, createRateLimiter } from "../utils/backoff.js";
+import { get, CacheKeys, getCacheTTL } from "../cache/index.js";
 
 // ============================================
 // TYPES
@@ -109,7 +111,6 @@ const USER_INFO_URL = `${TIKTOK_API_BASE}/v2/user/info/`;
 const VIDEO_LIST_URL = `${TIKTOK_API_BASE}/v2/video/list/`;
 
 // Fields to request from API
-// PLACEHOLDER: Adjust these based on your approved scopes
 const USER_INFO_FIELDS = [
   "open_id",
   "display_name",
@@ -134,7 +135,6 @@ const VIDEO_FIELDS = [
 ];
 
 // Rate limiter: TikTok allows ~100 requests/minute per user token
-// Being conservative with 1 request per second
 const rateLimiter = createRateLimiter(1);
 
 // ============================================
@@ -178,79 +178,90 @@ export class TikTokApiError extends Error {
 // ============================================
 
 /**
- * Get user info and statistics
+ * Get user info and statistics (cached)
+ * Cache key is based on access token hash to avoid exposing tokens
  */
 export async function getUserInfo(accessToken: string): Promise<UserStats> {
-  await rateLimiter();
+  // Create a cache key from the token (hash it for security)
+  const tokenHash = Buffer.from(accessToken).toString("base64").slice(0, 16);
+  const cacheKey = CacheKeys.tiktokUserInfo(tokenHash);
 
-  const url = new URL(USER_INFO_URL);
-  url.searchParams.set("fields", USER_INFO_FIELDS.join(","));
-
-  logger.debug("Fetching user info from TikTok API");
-
-  const response = await withRetry(
+  return get(
+    cacheKey,
     async () => {
-      const res = await fetch(url.toString(), {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
+      await rateLimiter();
+
+      const url = new URL(USER_INFO_URL);
+      url.searchParams.set("fields", USER_INFO_FIELDS.join(","));
+
+      logger.debug("Fetching user info from TikTok API");
+
+      const response = await withRetry(
+        async () => {
+          const res = await fetch(url.toString(), {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          const data = (await res.json()) as TikTokUserInfoResponse;
+
+          // Check for API errors
+          if (data.error?.code && data.error.code !== "ok") {
+            throw new TikTokApiError(
+              data.error.message || "Unknown TikTok API error",
+              data.error.code,
+              data.error.log_id,
+              res.status
+            );
+          }
+
+          if (!res.ok) {
+            throw new TikTokApiError(
+              `HTTP error ${res.status}`,
+              "http_error",
+              "",
+              res.status
+            );
+          }
+
+          return data;
         },
-      });
+        {
+          maxRetries: 3,
+          retryableErrors: (err): boolean => {
+            if (err instanceof TikTokApiError) {
+              return (
+                err.isRateLimitError() ||
+                Boolean(err.statusCode && err.statusCode >= 500)
+              );
+            }
+            return false;
+          },
+        },
+        "getUserInfo"
+      );
 
-      const data = (await res.json()) as TikTokUserInfoResponse;
+      const user = response.data.user;
 
-      // Check for API errors
-      if (data.error?.code && data.error.code !== "ok") {
-        throw new TikTokApiError(
-          data.error.message || "Unknown TikTok API error",
-          data.error.code,
-          data.error.log_id,
-          res.status
-        );
-      }
-
-      if (!res.ok) {
-        throw new TikTokApiError(
-          `HTTP error ${res.status}`,
-          "http_error",
-          "",
-          res.status
-        );
-      }
-
-      return data;
+      return {
+        openId: user.open_id,
+        displayName: user.display_name || "",
+        avatarUrl: user.avatar_url || "",
+        followerCount: user.follower_count ?? 0,
+        followingCount: user.following_count ?? 0,
+        likesCount: user.likes_count ?? 0,
+        videoCount: user.video_count ?? 0,
+      };
     },
-    {
-      maxRetries: 3,
-      retryableErrors: (err): boolean => {
-        if (err instanceof TikTokApiError) {
-          return (
-            err.isRateLimitError() ||
-            Boolean(err.statusCode && err.statusCode >= 500)
-          );
-        }
-        return false;
-      },
-    },
-    "getUserInfo"
+    getCacheTTL("api") // Cache API responses for 5 minutes
   );
-
-  const user = response.data.user;
-
-  return {
-    openId: user.open_id,
-    displayName: user.display_name || "",
-    avatarUrl: user.avatar_url || "",
-    followerCount: user.follower_count ?? 0,
-    followingCount: user.following_count ?? 0,
-    likesCount: user.likes_count ?? 0,
-    videoCount: user.video_count ?? 0,
-  };
 }
 
 /**
- * List user's videos with pagination
+ * List user's videos with pagination (cached)
  */
 export async function listVideos(
   accessToken: string,
@@ -263,85 +274,95 @@ export async function listVideos(
   cursor: number;
   hasMore: boolean;
 }> {
-  await rateLimiter();
-
   const { cursor = 0, maxCount = 20 } = options;
 
-  logger.debug({ cursor, maxCount }, "Fetching video list from TikTok API");
+  // Create a cache key from the token and cursor
+  const tokenHash = Buffer.from(accessToken).toString("base64").slice(0, 16);
+  const cacheKey = CacheKeys.tiktokVideos(tokenHash, cursor);
 
-  // Build URL with fields as query parameter
-  const url = new URL(VIDEO_LIST_URL);
-  url.searchParams.set("fields", VIDEO_FIELDS.join(","));
-
-  const response = await withRetry(
+  return get(
+    cacheKey,
     async () => {
-      const res = await fetch(url.toString(), {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
+      await rateLimiter();
+
+      logger.debug({ cursor, maxCount }, "Fetching video list from TikTok API");
+
+      // Build URL with fields as query parameter
+      const url = new URL(VIDEO_LIST_URL);
+      url.searchParams.set("fields", VIDEO_FIELDS.join(","));
+
+      const response = await withRetry(
+        async () => {
+          const res = await fetch(url.toString(), {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              cursor,
+              max_count: Math.min(maxCount, 20), // TikTok max is 20
+            }),
+          });
+
+          const data = (await res.json()) as TikTokVideoListResponse;
+
+          // Check for API errors
+          if (data.error?.code && data.error.code !== "ok") {
+            throw new TikTokApiError(
+              data.error.message || "Unknown TikTok API error",
+              data.error.code,
+              data.error.log_id,
+              res.status
+            );
+          }
+
+          if (!res.ok) {
+            throw new TikTokApiError(
+              `HTTP error ${res.status}`,
+              "http_error",
+              "",
+              res.status
+            );
+          }
+
+          return data;
         },
-        body: JSON.stringify({
-          cursor,
-          max_count: Math.min(maxCount, 20), // TikTok max is 20
-        }),
-      });
+        {
+          maxRetries: 3,
+          retryableErrors: (err): boolean => {
+            if (err instanceof TikTokApiError) {
+              return (
+                err.isRateLimitError() ||
+                Boolean(err.statusCode && err.statusCode >= 500)
+              );
+            }
+            return false;
+          },
+        },
+        "listVideos"
+      );
 
-      const data = (await res.json()) as TikTokVideoListResponse;
+      const videos: VideoStats[] = (response.data.videos || []).map((video) => ({
+        videoId: video.id,
+        description: video.video_description || video.title || "",
+        createTime: new Date(video.create_time * 1000),
+        viewCount: video.view_count ?? 0,
+        likeCount: video.like_count ?? 0,
+        commentCount: video.comment_count ?? 0,
+        shareCount: video.share_count ?? 0,
+        coverImageUrl: video.cover_image_url || "",
+        shareUrl: video.share_url || "",
+      }));
 
-      // Check for API errors
-      if (data.error?.code && data.error.code !== "ok") {
-        throw new TikTokApiError(
-          data.error.message || "Unknown TikTok API error",
-          data.error.code,
-          data.error.log_id,
-          res.status
-        );
-      }
-
-      if (!res.ok) {
-        throw new TikTokApiError(
-          `HTTP error ${res.status}`,
-          "http_error",
-          "",
-          res.status
-        );
-      }
-
-      return data;
+      return {
+        videos,
+        cursor: response.data.cursor,
+        hasMore: response.data.has_more,
+      };
     },
-    {
-      maxRetries: 3,
-      retryableErrors: (err): boolean => {
-        if (err instanceof TikTokApiError) {
-          return (
-            err.isRateLimitError() ||
-            Boolean(err.statusCode && err.statusCode >= 500)
-          );
-        }
-        return false;
-      },
-    },
-    "listVideos"
+    getCacheTTL("api") // Cache API responses for 5 minutes
   );
-
-  const videos: VideoStats[] = (response.data.videos || []).map((video) => ({
-    videoId: video.id,
-    description: video.video_description || video.title || "",
-    createTime: new Date(video.create_time * 1000),
-    viewCount: video.view_count ?? 0,
-    likeCount: video.like_count ?? 0,
-    commentCount: video.comment_count ?? 0,
-    shareCount: video.share_count ?? 0,
-    coverImageUrl: video.cover_image_url || "",
-    shareUrl: video.share_url || "",
-  }));
-
-  return {
-    videos,
-    cursor: response.data.cursor,
-    hasMore: response.data.has_more,
-  };
 }
 
 /**

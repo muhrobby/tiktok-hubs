@@ -14,6 +14,7 @@ import { logger } from "./utils/logger.js";
 import { initScheduler, stopScheduler } from "./jobs/scheduler.js";
 import { closeDb, checkDbHealth } from "./db/client.js";
 import { validateEncryptionSetup } from "./utils/crypto.js";
+import { closeRedisClient, checkRedisHealth, isCacheEnabled } from "./cache/redis.client.js";
 
 // ============================================
 // CONFIGURATION
@@ -56,6 +57,18 @@ async function validateEnvironment(): Promise<void> {
     throw new Error("Database connection failed. Check DATABASE_URL.");
   }
 
+  // Check Redis connection (if enabled)
+  if (isCacheEnabled()) {
+    const redisHealthy = await checkRedisHealth();
+    if (!redisHealthy) {
+      logger.warn("Redis connection failed. Caching will be disabled.");
+    } else {
+      logger.info("Redis connection established");
+    }
+  } else {
+    logger.info("Redis caching is disabled");
+  }
+
   logger.info("Environment validation passed");
 }
 
@@ -92,6 +105,7 @@ async function main(): Promise<void> {
 
       stopScheduler();
       await closeDb();
+      await closeRedisClient();
 
       logger.info("Graceful shutdown complete");
       process.exit(0);
